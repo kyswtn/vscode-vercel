@@ -1,0 +1,8 @@
+.vscode-test/
+browser/
+resources/custom-icons
+scripts/
+src/
+test/
+*.bak
+*.vsix

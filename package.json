@@ -1,0 +1,11 @@
+{
+  "name": "vscode-vercel-monorepo",
+  "private": true,
+  "workspaces": [
+    "extension",
+    "website"
+  ],
+  "dependencies": {
+    "@changesets/cli": "^2.27.7"
+  }
+}

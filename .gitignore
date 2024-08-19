@@ -1,0 +1,10 @@
+.DS_Store
+/.direnv
+/node_modules
+/result
+
+# for preview during development
+/example
+
+# for demo
+/acme-store

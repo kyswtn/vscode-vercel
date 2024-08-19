@@ -1,0 +1,4 @@
+/dist
+/.astro
+/.env
+/.env.production

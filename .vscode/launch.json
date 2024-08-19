@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/extension"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/extension/dist/**/*.js"
+      ],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack://vscode-vercel/./src": "${workspaceFolder}/extension/src",
+        "webpack://vscode-vercel/../node_modules": "${workspaceFolder}/node_modules"
+      }
+    },
+    {
+      "name": "Run Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/extension",
+        "--extensionTestsPath=${workspaceFolder}/extension/test/suite"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/extension/dist/extension.test.js"
+      ],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack://vscode-vercel/./src": "${workspaceFolder}/extension/src",
+        "webpack://vscode-vercel/../node_modules": "${workspaceFolder}/node_modules"
+      }
+    }
+  ]
+}

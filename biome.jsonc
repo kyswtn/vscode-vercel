@@ -1,0 +1,76 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.6.1/schema.json",
+  "formatter": {
+    "ignore": ["*.astro"],
+    "lineEnding": "lf",
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "defaultBranch": "main",
+    "useIgnoreFile": true
+  },
+  "javascript": {
+    "parser": {
+      // ESNext decorators are not useful for us. We need TypeScript's experimental parameters to
+      // get design:paramtypes for Dependency Injection.
+      "unsafeParameterDecoratorsEnabled": true
+    },
+    "formatter": {
+      "semicolons": "asNeeded",
+      "bracketSpacing": false,
+      "quoteStyle": "single",
+      // This reduces the amount of unnecessary line diffs to review.
+      "trailingComma": "all"
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    },
+    "parser": {
+      "allowComments": true
+    }
+  },
+  "overrides": [
+    {
+      "include": ["./extension/src/*.ts"],
+      "formatter": {
+        // Convention is to keep comments under the line width of 100, to make them readable as they
+        // usually come in paragraphs (like this one). Code can go up to 120 because VSCode's APIs
+        // can have really verbose/lengthy names.
+        "lineWidth": 120
+      }
+    }
+  ],
+  "linter": {
+    "ignore": [".vscode-test", "node_modules", "dist", "*.astro"],
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "error"
+      },
+      "style": {
+        // Non-null assertions are allowed, but they should come with SAFETY explanations on why
+        // these assertions won't cause an exception.
+        "noNonNullAssertion": "off",
+        // Reflect API uses class constructors for Dependency Injection, they look like types.
+        "useImportType": "off"
+      },
+      "complexity": {
+        // No unnecessary square bracket accesses.
+        "useLiteralKeys": "off"
+      },
+      "suspicious": {
+        // Contrary to biome's reason, const enums are only confusing in a library setting. This is
+        // not a library.
+        "noConstEnum": "off",
+        // This is a feature of JS, not a bug.
+        "noAssignInExpressions": "off"
+      }
+    }
+  }
+}
