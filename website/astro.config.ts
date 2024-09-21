@@ -13,7 +13,7 @@ export default defineConfig({
   integrations: [
     unocss(),
     purgecss({
-      safelist: [/dark/, /prose/],
+      safelist: [/dark/, /prose/, /\[.*\]/],
       variables: true,
     }),
     compress(),
