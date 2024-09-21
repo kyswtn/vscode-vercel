@@ -1,0 +1,10 @@
+---
+import '../styles/fonts.css';
+
+import reset from '@unocss/reset/tailwind.css?raw';
+import fonts from '../styles/fonts.css?raw';
+
+const css = [fonts, reset].join('');
+---
+
+<style is:inline set:html={css}></style>

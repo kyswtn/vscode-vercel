@@ -5,7 +5,7 @@
     "lineEnding": "lf",
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 80
+    "lineWidth": 100
   },
   "vcs": {
     "enabled": true,

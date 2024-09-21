@@ -6,6 +6,8 @@ permissions:
 
 on:
   push:
+    paths:
+      - extension/**
     branches:
       - main
 
