@@ -45,7 +45,7 @@ export const enum CommandId {
 }
 
 export const enum ConfigId {
-  FilesExclude = 'vercel.files.exclude',
+  FilesExclude = 'files.exclude',
 }
 
 export const enum TreeId {

@@ -1,12 +1,12 @@
 import path from 'pathe'
 import * as vscode from 'vscode'
 import {FilePattern, projectJsonPath} from './constants'
-import {ExtensionConfiguration} from './extension-configuration'
+import {ExtensionConfiguration, OnDidChangeFilesExcludeEvent} from './extension-configuration'
 import {FileWatchersStateProvider} from './file-watchers-state-provider'
 import {FoldersStateProvider} from './folders-state-provider'
 import {Injectable, Logger, type WatchedFileChangeEvent} from './lib'
 import type {ProjectJson} from './types'
-import {naiveGlobMatch, naiveHash, normalizePath, settleAllPromises} from './utils'
+import {diffArrays, naiveGlobMatch, naiveHash, normalizePath, settleAllPromises} from './utils'
 import {PromiseQueue} from './utils/promise-queue'
 import {isValidProjectJson} from './utils/validation'
 import {readJsonFile} from './utils/vscode'
@@ -55,6 +55,9 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
       this.fileWatchersState.onDidChangeWatchedFiles((event) => {
         void updateLocalProjectsQueue.enqueue(() => this.updateLocalProjectsWhenWatchedFilesChanged(event))
       }),
+      this.extensionConfig.onDidChangeFilesExclude((event) => {
+        void updateLocalProjectsQueue.enqueue(() => this.updateLocalProjectsWhenConfigChanged(event))
+      }),
     )
   }
 
@@ -73,6 +76,17 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
 
   async loadLocalProjects() {
     this._localProjects = await this.getProjectsFromMultipleWorkspaceFolders(this.foldersState.folders)
+  }
+
+  private async updateLocalProjectsWhenConfigChanged(_event: OnDidChangeFilesExcludeEvent) {
+    // It's not worth it to read event and filter out projects, so just reload & emit an event.
+    const oldLocalProjects = this._localProjects
+    await this.loadLocalProjects()
+
+    const newEvent = diffArrays(oldLocalProjects, this._localProjects, (a, b) => a.id === b.id)
+    const hasChanged = newEvent && newEvent.added.length + newEvent.removed.length > 0
+
+    if (hasChanged) this.onDidChangeLocalProjectsEventEmitter.fire({...newEvent, changed: []})
   }
 
   private async updateLocalProjectsWhenFoldersChanged(event: vscode.WorkspaceFoldersChangeEvent) {

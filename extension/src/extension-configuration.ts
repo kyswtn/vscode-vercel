@@ -1,18 +1,40 @@
 import * as vscode from 'vscode'
 import {ConfigId, extensionPrefix} from './constants'
 import {Injectable} from './lib'
+import {diffArrays} from './utils'
+
+export type OnDidChangeFilesExcludeEvent = {
+  added: string[]
+  removed: string[]
+}
 
 @Injectable()
 export class ExtensionConfiguration implements vscode.Disposable {
-  private readonly config = vscode.workspace.getConfiguration()
   private readonly disposable: vscode.Disposable
-  private _filesExclude: string[] = []
+  private filesConfig = vscode.workspace.getConfiguration('files')
+  private vercelConfig = vscode.workspace.getConfiguration(extensionPrefix)
+
+  private allFilesExclude = this.getAllFilesExclude()
+  private readonly onDidChangeFilesExcludeEventEmitter = new vscode.EventEmitter<OnDidChangeFilesExcludeEvent>()
 
   constructor() {
-    this.updateCache()
     this.disposable = vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration(extensionPrefix)) {
-        this.updateCache()
+        this.vercelConfig = vscode.workspace.getConfiguration(extensionPrefix)
+      }
+
+      if (event.affectsConfiguration('files')) {
+        this.filesConfig = vscode.workspace.getConfiguration('files')
+      }
+
+      if (this.affectsSomeConfigurations(event, [`${extensionPrefix}.${ConfigId.FilesExclude}`, 'files.exclude'])) {
+        const newFileExcludes = this.getAllFilesExclude()
+        const diff = diffArrays(this.allFilesExclude, newFileExcludes)
+
+        if (diff) {
+          this.allFilesExclude = newFileExcludes
+          this.onDidChangeFilesExcludeEventEmitter.fire(diff)
+        }
       }
     })
   }
@@ -21,17 +43,24 @@ export class ExtensionConfiguration implements vscode.Disposable {
     this.disposable.dispose()
   }
 
-  private updateCache() {
+  get filesExclude() {
+    return this.allFilesExclude
+  }
+
+  get onDidChangeFilesExclude() {
+    return this.onDidChangeFilesExcludeEventEmitter.event
+  }
+
+  private affectsSomeConfigurations(event: vscode.ConfigurationChangeEvent, sections: string[]) {
+    return sections.some((section) => event.affectsConfiguration(section))
+  }
+
+  private getAllFilesExclude() {
     // `files.exclude` is not a string array. It's an object of patterns with boolean values.
-    const vscodeFilesExclude = this.config.get<Record<string, boolean>>('files.exclude', {})
+    const vscodeFilesExclude = this.filesConfig.get<Record<string, boolean>>('exclude', {})
     const vscodeFilesExcludeGlobs = Object.entries(vscodeFilesExclude)
       .filter(([, enabled]) => enabled)
       .map(([globPattern]) => globPattern)
-
-    this._filesExclude = [...vscodeFilesExcludeGlobs, ...this.config.get<string[]>(ConfigId.FilesExclude, [])]
-  }
-
-  get filesExclude() {
-    return this._filesExclude
+    return [...vscodeFilesExcludeGlobs, ...this.vercelConfig.get<string[]>(ConfigId.FilesExclude, [])]
   }
 }
