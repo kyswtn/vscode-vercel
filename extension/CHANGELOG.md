@@ -1,5 +1,11 @@
 # vscode-vercel
 
+## 2.1.1
+
+### Patch Changes
+
+- 0e03eac: Fix projects not being updated when settings changed
+
 ## 2.1.0
 
 ### Minor Changes

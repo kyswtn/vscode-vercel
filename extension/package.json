@@ -2,7 +2,7 @@
   "name": "vscode-vercel",
   "displayName": "VSCode Vercel",
   "icon": "resources/vscode-vercel-xs.png",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Vercel integration for Visual Studio Code.",
   "categories": [
     "Other"
