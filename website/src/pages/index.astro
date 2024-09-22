@@ -9,6 +9,7 @@ import {Content as Description} from '../components/Description.md';
 import {Content as Features} from '../components/Features.md';
 import {Content as GetStarted} from '../components/GetStarted.md';
 import {Content as Installation} from '../components/Installation.md';
+import {Content as TLDR} from '../components/TLDR.md';
 
 const preloadFonts: AbsoluteFontFilePath[] = [
   '/fonts/newtitle-bold.woff2',
@@ -50,10 +51,8 @@ const preloadFonts: AbsoluteFontFilePath[] = [
         </div>
       </div>
 
-      <div class="max-w-prose font-serif text-xl tracking-tight">
-        <p>
-          <b>VSCode Vercel</b> is a free, open-source extension for Visual Studio Code and forks.
-        </p>
+      <div class="max-w-prose prose prose-radix-gray font-serif text-xl tracking-tight lg:-mt-1em">
+        <TLDR />
       </div>
       <h1
         class="font-headings uppercase font-bold text-[6rem] md:text-[8rem] lg:text-[10rem] leading-none my-5 lg:my-10"
