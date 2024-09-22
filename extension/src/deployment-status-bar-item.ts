@@ -9,7 +9,7 @@ import {capitalize} from './utils'
 
 @Injectable()
 export class DeploymentStatusBarItem implements vscode.Disposable {
-  private readonly icon = `  $(${'custom-icons-vercel-triangle-fill-small' satisfies CustomIcon}) `
+  private readonly icon = `  $(${'custom-icons-vercel-triangle-fill-small' satisfies CustomIcon})`
   private readonly statusBarItem: vscode.StatusBarItem
   private readonly disposable: vscode.Disposable
 
