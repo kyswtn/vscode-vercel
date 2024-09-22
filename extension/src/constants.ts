@@ -44,6 +44,10 @@ export const enum CommandId {
   SetFocusedDeploymentId = 'vercel:setFocusedDeploymentId',
 }
 
+export const enum ConfigId {
+  FilesExclude = 'vercel.files.exclude',
+}
+
 export const enum TreeId {
   Deployments = 'vercel-deployments',
   Projects = 'vercel-projects',

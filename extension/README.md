@@ -4,14 +4,14 @@ Enhance your Vercel deployment experience within Visual Studio Code. Monitor dep
 
 <img align="center" src="https://raw.githubusercontent.com/kyswtn/vscode-vercel/main/.github/showcase.png" />
 
-This extension complements, rather than replaces, the Vercel Dashboard and the [Official Vercel CLI](https://vercel.com/docs/cli). Its purpose is not to replicate all the website's features but to offer actionable tools that developers can use within VSCode, reducing context switching and streamlining the Vercel development experience.
+This extension complements, rather than replaces, the Vercel Dashboard and the [Official Vercel CLI](https://vercel.com/docs/cli). The purpose of this extension is not to replicate all the website's features but to offer actionable tools that developers can use within their code editor, reducing context switching and streamlining the Vercel development experience.
 
 The extension integrates seamlessly with the Vercel CLI. Deployments are displayed based on available projects within a folder or workspace. Projects must be [linked](#manage-projects) first to be managed.
 
 ## Features
 
 - [**Monitor Deployments**](#monitor-deployments) &mdash; Stay on top of deployments while coding through the deployments sidebar.
-- [**Manage Projects**](#manage-projects) &mdash; Link new projects, pull environment variables, even in large monorepos.
+- [**Manage Projects**](#manage-projects) &mdash; Link new projects, pull environment variables, even in monorepos.
 - [**Inspect Deployments**](#inspect-deployments) &mdash; Access deployment build logs and outputs, just like regular files.
 - [**Seamless Authentication**](#seamless-authentication) &mdash; Multiple authentication options including OAuth, access tokens, or Vercel CLI.
 - [**And more...**](#planned) &mdash; At-a-glance deployment info on status bar, `vercel.json` file validations, and more.
@@ -22,7 +22,7 @@ All these features are designed to work in all VSCode based editors such as VSCo
 
 Effortlessly monitor all your deployments through the deployment sidebar. This feature provides an organized list of deployments, displaying crucial information like status, timestamps, and URLs. Easily filter deployments to focus on what’s important, ensuring you have a clear view of your deployment history while coding.
 
-> [!NOTE]
+> [!NOTE]  
 > **Coming soon**: Real-time updates will ensure you never miss new deployments by your teammates.
 
 ### Manage Projects

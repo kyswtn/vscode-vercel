@@ -40,6 +40,7 @@ const extension = new Extension({
     ViewFileDecorationProvider,
     SaveOpenedFileCommand,
     PullEnvsCommand,
+    ExtensionConfiguration,
     // Authentication
     VercelAuthenticationProvider,
     AuthenticationStateProvider,
@@ -73,8 +74,9 @@ const extension = new Extension({
 })
 
 // Uncomment this for DEMO mode with fake data.
-// import {DemoVercelApiClient} from './demo/demo-vercel-api-client'
-// extension.container.override(VercelApiClient, new DemoVercelApiClient())
+import {DemoVercelApiClient} from './demo/demo-vercel-api-client'
+import {ExtensionConfiguration} from './extension-configuration'
+extension.container.override(VercelApiClient, new DemoVercelApiClient())
 
 export async function activate(context: vscode.ExtensionContext) {
   try {

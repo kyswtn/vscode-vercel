@@ -106,3 +106,12 @@ export function getDataDir(productName: string): string {
 
   return path.join(dataPath, productName)
 }
+
+/**
+ * Naively checks if a path string matches the glob pattern. Only works on ** patterns.
+ * VSCode should really have an API for this because they implement their own glob library.
+ */
+export function naiveGlobMatch(p: string, glob: string) {
+  const regex = new RegExp(glob.replaceAll('**', '.*'), 'g')
+  return regex.test(p)
+}

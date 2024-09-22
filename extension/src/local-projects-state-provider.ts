@@ -1,11 +1,12 @@
 import path from 'pathe'
 import * as vscode from 'vscode'
 import {FilePattern, projectJsonPath} from './constants'
+import {ExtensionConfiguration} from './extension-configuration'
 import {FileWatchersStateProvider} from './file-watchers-state-provider'
 import {FoldersStateProvider} from './folders-state-provider'
 import {Injectable, Logger, type WatchedFileChangeEvent} from './lib'
 import type {ProjectJson} from './types'
-import {naiveHash, normalizePath, settleAllPromises} from './utils'
+import {naiveGlobMatch, naiveHash, normalizePath, settleAllPromises} from './utils'
 import {PromiseQueue} from './utils/promise-queue'
 import {isValidProjectJson} from './utils/validation'
 import {readJsonFile} from './utils/vscode'
@@ -41,6 +42,7 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
   constructor(
     private readonly fileWatchersState: FileWatchersStateProvider,
     private readonly foldersState: FoldersStateProvider,
+    private readonly extensionConfig: ExtensionConfiguration,
   ) {
     // We use a queue here because local projects are updated based on file-system events, which can
     // get fired in quick succession but we'll process them one at a time.
@@ -134,6 +136,10 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
 
       case 'change':
       case 'create': {
+        const filesExclude = this.extensionConfig.filesExclude
+        const excluded = filesExclude.some((glob) => naiveGlobMatch(projectRootPath, glob))
+        if (excluded) return
+
         const newProject = await this.getLocalProject(vscode.Uri.parse(projectRootPath))
         if (!newProject) return
 
@@ -177,8 +183,10 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
   }
 
   private async getProjectsFromWorkspaceFolder(folder: vscode.WorkspaceFolder) {
+    const filesExcludeGlob = `{${this.extensionConfig.filesExclude.join(',')}}`
     const projectRoots = await vscode.workspace
-      .findFiles(new vscode.RelativePattern(folder, FilePattern.ProjectJson))
+      // No one should have more than 100 Vercel projects in a single monorepo!
+      .findFiles(new vscode.RelativePattern(folder, FilePattern.ProjectJson), filesExcludeGlob, 100)
       .then((projectJsonFiles) =>
         projectJsonFiles.map((uri) => {
           const projectRoot = uri.path.replace(new RegExp(`${projectJsonPath}$`, 'i'), '')

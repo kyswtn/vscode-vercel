@@ -52,7 +52,15 @@
     ],
     "configuration": {
       "title": "VSCode Vercel",
-      "properties": {}
+      "properties": {
+        "vercel.files.exclude": {
+          "markdownDescription": "Configure glob patterns to exclude projects from. Inherits all glob patterns from the [Files: Exclude]() setting.",
+          "type": "array",
+          "default": [
+            "**/node_modules"
+          ]
+        }
+      }
     },
     "commands": [
       {

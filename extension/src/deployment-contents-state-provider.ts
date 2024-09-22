@@ -28,6 +28,7 @@ export class DeploymentContentsStateProvider {
     const memoized = this.events.get(deploymentId)
     if (memoized) return memoized
 
+    // TODO: Show deployment logs in real time.
     const events = await this.vercelApi.getDeploymentEvents(deploymentId, accessToken, teamId)
     const ctime = events[0]?.created ?? 0
     const mtime = (events.length > 0 ? events[events.length - 1]?.created : ctime) ?? 0
