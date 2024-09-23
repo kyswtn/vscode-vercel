@@ -1,5 +1,11 @@
 # vscode-vercel
 
+## 2.1.3
+
+### Patch Changes
+
+- b01ca8b: Fix broken import and add authentication check on bootstrap
+
 ## 2.1.2
 
 ### Patch Changes
