@@ -1,5 +1,11 @@
 # vscode-vercel
 
+## 2.1.2
+
+### Patch Changes
+
+- bc7aa68: Fix accidentally enabled DEMO mode
+
 ## 2.1.1
 
 ### Patch Changes
