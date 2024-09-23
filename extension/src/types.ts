@@ -1,8 +1,6 @@
 import * as vscode from 'vscode'
 import {VercelDeploymentState} from './constants'
 
-// TODO: Remove constant enums (which are values) from this file.
-
 export type CustomIcon = `custom-icons-${keyof typeof import('./custom-icons.json')}`
 
 export type AuthJson = {
