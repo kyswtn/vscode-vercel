@@ -32,5 +32,7 @@ export class BootstrapExtension implements OnExtensionBootstrap {
     await this.linkedProjectsState.linkLocalProjectsOnBootstrap()
     await this.deploymentsState.loadDeployments()
     await this.deploymentStatusBarItem.setInitialDisplayState()
+
+    void this.authState.checkIfAuthenticationIsStillValid()
   }
 }

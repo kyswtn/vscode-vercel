@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import {ContextId} from './constants'
 import {ContextKeys, Injectable} from './lib'
 import {CustomAuthenticationSession} from './types'
+import {VercelApiClient} from './vercel-api-client'
 import {VercelAuthenticationProvider} from './vercel-authentication-provider'
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthenticationStateProvider implements vscode.Disposable {
   constructor(
     private readonly contextKeys: ContextKeys,
     private readonly vercelAuth: VercelAuthenticationProvider,
+    private readonly vercelApi: VercelApiClient,
   ) {
     this.disposable = vscode.Disposable.from(
       this.vercelAuth.onDidChangeSessions((event) => {
@@ -39,6 +41,26 @@ export class AuthenticationStateProvider implements vscode.Disposable {
 
     // Do not emit an event to prevent an extra render. Only set the context key.
     void this.contextKeys.set(ContextId.IsAuthenticated, session !== undefined, 'globalState')
+  }
+
+  async checkIfAuthenticationIsStillValid() {
+    const session = this._currentSession
+    if (!session) return
+
+    try {
+      await this.vercelApi.getUser(session.accessToken)
+      // Everything's good.
+    } catch (_) {
+      // Bad, prompt user to sign in again.
+      await this.signOut()
+
+      const signInAgain = await vscode.window.showErrorMessage(
+        'Saved access token seems to have expired. Please sign in again.',
+        'Sign in',
+      )
+
+      if (signInAgain) await this.signIn()
+    }
   }
 
   get currentSession() {

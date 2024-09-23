@@ -14,6 +14,7 @@ import {DeploymentFiltersStateProvider} from './deployment-filters-state-provide
 import {DeploymentStatusBarItem} from './deployment-status-bar-item'
 import {DeploymentsStateProvider} from './deployments-state-provider'
 import {DeploymentsTreeDataProvider, DeploymentsTreeView} from './deployments-tree'
+import {ExtensionConfiguration} from './extension-configuration'
 import {FileWatchersStateProvider} from './file-watchers-state-provider'
 import {FoldersStateProvider} from './folders-state-provider'
 import {LinkFolderToProjectCommand} from './link-folder-to-project-command'
@@ -75,7 +76,6 @@ const extension = new Extension({
 
 // Uncomment this for DEMO mode with fake data.
 // import {DemoVercelApiClient} from './demo/demo-vercel-api-client'
-// import {ExtensionConfiguration} from './extension-configuration'
 // extension.container.override(VercelApiClient, new DemoVercelApiClient())
 
 export async function activate(context: vscode.ExtensionContext) {
