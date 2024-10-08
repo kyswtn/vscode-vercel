@@ -1,5 +1,11 @@
 # vscode-vercel
 
+## 2.1.4
+
+### Patch Changes
+
+- 6e476a6: Fix XDG data path for CLI config on Windows
+
 ## 2.1.3
 
 ### Patch Changes
