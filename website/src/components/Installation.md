@@ -8,8 +8,8 @@ The extension can also be installed through CLI.
 code --install-extension frenco.vscode-vercel
 ```
 
-If extension marketplace is not supported by your editor, please download the extension as a VSIX file [here](https://marketplace.visualstudio.com/_apis/public/gallery/publishers/frenco/vsextensions/vscode-vercel/2.0.0/vspackage), and install it as the following. Replace `code` with your editor's program name.
+If extension marketplace is not supported by your editor, please download the extension as a VSIX file [here](https://marketplace.visualstudio.com/_apis/public/gallery/publishers/frenco/vsextensions/vscode-vercel/2.1.4/vspackage), and install it as the following. Replace `code` with your editor's program name.
 
 ```sh
-code --install-extension frenco.vscode-vercel-2.0.0.vsix
+code --install-extension frenco.vscode-vercel-2.1.4.vsix
 ```
