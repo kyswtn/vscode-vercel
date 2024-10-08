@@ -86,8 +86,9 @@ export function naiveHash(input: string) {
   return hash.toString(16)
 }
 
-export function getDataDir(productName: string): string {
+export function getDataDir(_productName: string): string {
   let dataPath: string | undefined
+  let productName = _productName
 
   const p = platform()
   switch (p) {
@@ -97,9 +98,11 @@ export function getDataDir(productName: string): string {
     case 'linux':
       dataPath = process.env['XDG_CONFIG_HOME'] || path.join(homedir(), '.config')
       break
-    case 'win32':
+    case 'win32': {
       dataPath = process.env['APPDATA'] || path.join(homedir(), 'AppData', 'Roaming')
+      productName = path.join(productName, 'Data') // Thanks Stefan.
       break
+    }
     default:
       throw new Error('Platform not supported')
   }
