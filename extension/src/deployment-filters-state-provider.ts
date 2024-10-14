@@ -41,11 +41,13 @@ export class DeploymentFiltersStateProvider implements vscode.Disposable {
     const filtersState = this._filters
     const searchParams = new URLSearchParams()
 
-    if (filtersState.target.length !== defaultDeploymentFilters.target.length) {
+    if (filtersState.target && filtersState.target.length !== 2) {
+      // There are only two targets, length 2 means all are selected, no need to include params.
       searchParams.append('target', filtersState.target.join(','))
     }
 
-    if (filtersState.status.length !== defaultDeploymentFilters.status.length) {
+    if (filtersState.status && filtersState.status.length !== 5) {
+      // Same here with length 5.
       searchParams.append('state', filtersState.status.join(','))
     }
 

@@ -74,14 +74,14 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
     return this.onDidChangeLocalProjectsEventEmitter.event
   }
 
-  async loadLocalProjects() {
+  async loadLocalProjectsWithoutEvents() {
     this._localProjects = await this.getProjectsFromMultipleWorkspaceFolders(this.foldersState.folders)
   }
 
   private async updateLocalProjectsWhenConfigChanged(_event: OnDidChangeFilesExcludeEvent) {
     // It's not worth it to read event and filter out projects, so just reload & emit an event.
     const oldLocalProjects = this._localProjects
-    await this.loadLocalProjects()
+    await this.loadLocalProjectsWithoutEvents()
 
     const newEvent = diffArrays(oldLocalProjects, this._localProjects, (a, b) => a.id === b.id)
     const hasChanged = newEvent && newEvent.added.length + newEvent.removed.length > 0

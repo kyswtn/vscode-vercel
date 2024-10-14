@@ -29,12 +29,13 @@ export class PullEnvsCommand implements vscode.Disposable {
   async run(project?: LinkedProject, environment?: VercelDeploymentEnvironment) {
     const currentSession = this.auth.currentSession
     if (!currentSession) return
-    const {accessToken, teamId} = currentSession
+    const {accessToken, teamId: authenticatedTeamId} = currentSession
 
     const selectedProject = project ?? (await showLinkedProjectQuickPick(this.linkedProjectsState.linkedProjects))
     if (!selectedProject) return
 
     const projectId = selectedProject.remote.id
+    const teamId = selectedProject.remote.teamId ?? authenticatedTeamId
     const projectUri = selectedProject.local.uri
 
     const selectedEnv = environment ?? (await showEnvironmentQuickPick())

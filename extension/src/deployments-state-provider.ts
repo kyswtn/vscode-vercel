@@ -3,13 +3,14 @@ import {AuthenticationStateProvider} from './authentication-state-provider'
 import {ContextId} from './constants'
 import {DeploymentFiltersStateProvider} from './deployment-filters-state-provider'
 import {ContextKeys, Injectable, Logger} from './lib'
-import {LinkedProjectsStateProvider, OnDidChangeRemoteProjectIdsEvent} from './linked-projects-state-provider'
+import {OnDidChangeProjectsEvent, ProjectsStateProvider} from './projects-state-provider'
 import {type CustomAuthenticationSession, type PlainVercelDeployment} from './types'
 import {settleAllPromises} from './utils'
 import {LoadingState} from './utils/loading-state'
 import {isValidVercelDeployment} from './utils/validation'
 import {VercelApiClient} from './vercel-api-client'
 import {VercelDeployment} from './vercel-deployment'
+import {VercelProject} from './vercel-project'
 
 export class Deployment extends VercelDeployment {
   id: string
@@ -34,12 +35,12 @@ export class DeploymentsStateProvider implements vscode.Disposable {
   constructor(
     private readonly authState: AuthenticationStateProvider,
     private readonly contextKeys: ContextKeys,
-    private readonly linkedProjectsState: LinkedProjectsStateProvider,
+    private readonly projectsState: ProjectsStateProvider,
     private readonly vercelApi: VercelApiClient,
     private readonly deploymentFiltersState: DeploymentFiltersStateProvider,
   ) {
     this.disposable = vscode.Disposable.from(
-      this.linkedProjectsState.onDidChangeRemoteProjectIds((event) => {
+      this.projectsState.onDidChangeProjects((event) => {
         void this.updateDeploymentsWhenProjectIdsChanged(event)
       }),
       this.deploymentFiltersState.onDidChangeFilters(() => {
@@ -77,13 +78,13 @@ export class DeploymentsStateProvider implements vscode.Disposable {
   async loadDeployments() {
     const filters = this.deploymentFiltersState.searchParams
     const promise = this.deploymentsLoadingState.withLoading(async () => {
-      const projectIds = this.linkedProjectsState.remoteProjectIds
-      if (projectIds.length === 0) return
+      const projects = this.projectsState.projects
+      if (projects.length === 0) return
 
       if (!this.authState.currentSession) return
       const currentSession = this.authState.currentSession
 
-      const prefetchedDeployments = await this.prefetchVercelDeployments(projectIds, filters, currentSession)
+      const prefetchedDeployments = await this.prefetchVercelDeployments(projects, filters, currentSession)
       for (const [projectId, deployments] of prefetchedDeployments) {
         this._deployments.set(
           projectId,
@@ -114,6 +115,12 @@ export class DeploymentsStateProvider implements vscode.Disposable {
     )
   }
 
+  getDeploymentById(id: string) {
+    return Array.from(this._deployments.values())
+      .flat()
+      .find((deployment) => deployment.id === id)
+  }
+
   get focusedDeployment() {
     return this._focusedDeployment
   }
@@ -127,18 +134,18 @@ export class DeploymentsStateProvider implements vscode.Disposable {
   }
 
   private async prefetchVercelDeployments(
-    projectIds: readonly string[],
+    projects: readonly VercelProject[],
     searchParams: URLSearchParams,
     currentSession: CustomAuthenticationSession,
   ) {
-    const {accessToken, teamId} = currentSession
+    const {accessToken, teamId: authenticatedTeamId} = currentSession
 
     const [entries, throws] = await settleAllPromises(
-      projectIds.map(async (id) => {
+      projects.map(async (project) => {
         const deployments = await this.vercelApi
-          .listDeploymentsByProjectId(id, searchParams, accessToken, teamId)
+          .listDeploymentsByProjectId(project.id, searchParams, accessToken, project.teamId ?? authenticatedTeamId)
           .then((deployments) => deployments.filter(isValidVercelDeployment))
-        return [id, deployments] as const
+        return [project.id, deployments] as const
       }),
     )
     for (const error of throws) {
@@ -147,12 +154,12 @@ export class DeploymentsStateProvider implements vscode.Disposable {
     return new Map(entries)
   }
 
-  private async updateDeploymentsWhenProjectIdsChanged(event: OnDidChangeRemoteProjectIdsEvent) {
+  private async updateDeploymentsWhenProjectIdsChanged(event: OnDidChangeProjectsEvent) {
     const filters = this.deploymentFiltersState.searchParams
     const promise = this.deploymentsLoadingState.withLoading(async () => {
       if (event.removed.length > 0) {
-        for (const projectId of event.removed) {
-          this._deployments.delete(projectId)
+        for (const project of event.removed) {
+          this._deployments.delete(project.id)
         }
         this.setFocusedDeployment()
       }
@@ -163,12 +170,12 @@ export class DeploymentsStateProvider implements vscode.Disposable {
       if (event.added.length > 0) {
         const prefetchedDeployments = await this.prefetchVercelDeployments(event.added, filters, currentSession)
 
-        for (const projectId of event.added) {
-          const deployments = prefetchedDeployments.get(projectId)
+        for (const project of event.added) {
+          const deployments = prefetchedDeployments.get(project.id)
           if (!deployments) continue
 
           this._deployments.set(
-            projectId,
+            project.id,
             deployments.map((deployment) => new Deployment(deployment)),
           )
           this.setFocusedDeployment()

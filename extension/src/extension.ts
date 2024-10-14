@@ -21,6 +21,7 @@ import {LinkFolderToProjectCommand} from './link-folder-to-project-command'
 import {LinkWorkspaceToProjectCommand} from './link-workspace-to-project-command'
 import {LinkedProjectsStateProvider} from './linked-projects-state-provider'
 import {LocalProjectsStateProvider} from './local-projects-state-provider'
+import {ProjectsStateProvider} from './projects-state-provider'
 import {ProjectsTreeDataProvider, ProjectsTreeView} from './projects-tree'
 import {PullEnvsCommand} from './pull-envs-command'
 import {SaveOpenedFileCommand} from './save-opened-file-command'
@@ -52,6 +53,7 @@ const extension = new Extension({
     FileWatchersStateProvider,
     LocalProjectsStateProvider,
     LinkedProjectsStateProvider,
+    ProjectsStateProvider,
     ProjectsTreeDataProvider,
     ProjectsTreeView,
     SwitchFocusedProjectCommand,

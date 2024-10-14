@@ -1,10 +1,9 @@
 import * as vscode from 'vscode'
 import {AuthenticationStateProvider} from './authentication-state-provider'
-import {ContextId} from './constants'
-import {ContextKeys, Injectable, Logger} from './lib'
+import {Injectable, Logger} from './lib'
 import {LocalProject, LocalProjectsStateProvider, OnDidChangeLocalProjectEvent} from './local-projects-state-provider'
-import type {CustomAuthenticationSession, PlainVercelProject} from './types'
-import {diffArrays, settleAllPromises} from './utils'
+import type {CustomAuthenticationSession, PlainVercelProject, ProjectJson} from './types'
+import {settleAllPromises, uniqueBy} from './utils'
 import {LoadingState} from './utils/loading-state'
 import {isValidVercelProject} from './utils/validation'
 import {VercelApiClient} from './vercel-api-client'
@@ -20,24 +19,17 @@ export class LinkedProject {
   }
 }
 
-export type OnDidChangeRemoteProjectIdsEvent = {
-  added: readonly string[]
-  removed: readonly string[]
-}
-
 @Injectable()
 export class LinkedProjectsStateProvider implements vscode.Disposable {
   private readonly logger = new Logger(LinkedProjectsStateProvider.name)
   private readonly projectsLoadingState = new LoadingState()
   private _linkedProjects: LinkedProject[] = []
   private readonly onWillChangeLinkedProjectsEventEmitter = new vscode.EventEmitter<void>()
-  private _remoteProjectIds: string[] = []
-  private readonly onDidChangeRemoteProjectIdsEventEmitter = new vscode.EventEmitter<OnDidChangeRemoteProjectIdsEvent>()
+  private readonly onDidChangeLinkedProjectsEventEmitter = new vscode.EventEmitter<void>()
   private readonly disposable: vscode.Disposable
 
   constructor(
     private readonly authState: AuthenticationStateProvider,
-    private readonly contextKeys: ContextKeys,
     private readonly localProjectsState: LocalProjectsStateProvider,
     private readonly vercelApi: VercelApiClient,
   ) {
@@ -48,18 +40,11 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
         } else {
           this.onWillChangeLinkedProjectsEventEmitter.fire()
           this._linkedProjects = []
-
-          const projectIdsToBeRemoved = this._remoteProjectIds
-          this._remoteProjectIds = []
-          this.onDidChangeRemoteProjectIdsEventEmitter.fire({added: [], removed: projectIdsToBeRemoved})
+          this.onDidChangeLinkedProjectsEventEmitter.fire()
         }
       }),
       this.localProjectsState.onDidChangeLocalProjects((event) => {
         void this.updateLinkedProjectsWhenLocalProjectsChanged(event)
-      }),
-      this.onDidChangeRemoteProjectIdsEventEmitter.event(() => {
-        const noProjectsFound = this._remoteProjectIds.length === 0
-        void this.contextKeys.set(ContextId.NoProjectsFound, noProjectsFound)
       }),
     )
   }
@@ -67,7 +52,6 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
   dispose() {
     this.disposable.dispose()
     this.onWillChangeLinkedProjectsEventEmitter.dispose()
-    this.onDidChangeRemoteProjectIdsEventEmitter.dispose()
   }
 
   get linkedProjects() {
@@ -82,31 +66,16 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
     return this.projectsLoadingState.loadingPromise
   }
 
-  get remoteProjectIds() {
-    return this._remoteProjectIds
-  }
-
-  get onDidChangeRemoteProjectIds() {
-    return this.onDidChangeRemoteProjectIdsEventEmitter.event
-  }
-
-  get remoteProjects() {
-    const remoteProjectIds = this._remoteProjectIds
-    const linkedProjects = this._linkedProjects
-
-    return remoteProjectIds
-      .map((projectId) => linkedProjects.find((project) => project.remote.id === projectId))
-      .filter((project) => project !== undefined)
-      .map((project) => project.remote)
+  get onDidChangeLinkedProjects() {
+    return this.onDidChangeLinkedProjectsEventEmitter.event
   }
 
   async linkLocalProjectsOnBootstrap() {
     await this.linkLocalProjects(undefined, true)
-    await this.contextKeys.set(ContextId.NoProjectsFound, this._remoteProjectIds.length === 0)
   }
 
   async reloadProjects() {
-    await this.linkLocalProjects(/* right after */ () => this.localProjectsState.loadLocalProjects())
+    await this.linkLocalProjects(/* right after */ () => this.localProjectsState.loadLocalProjectsWithoutEvents())
   }
 
   private async linkLocalProjects(fnToRunBeforeLink?: () => Promise<void>, bootstrap = false) {
@@ -120,7 +89,7 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
       if (!currentSession) return
 
       this._linkedProjects = await this.getLinkedProjectsFromLocalProjects(localProjects, currentSession)
-      this.updateRemoteProjectIds(/* emitEvent */ !bootstrap)
+      if (!bootstrap) this.onDidChangeLinkedProjectsEventEmitter.fire()
     })
 
     this.onWillChangeLinkedProjectsEventEmitter.fire()
@@ -131,8 +100,9 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
     localProjects: readonly LocalProject[],
     currentSession: CustomAuthenticationSession,
   ) {
-    const projectIds = [...new Set(localProjects.map((local) => local.projectJson.projectId))]
-    const prefetchedVercelProjects = await this.prefetchVercelProjects(projectIds, currentSession)
+    // biome-ignore format: Biome bug? This shouldn't be multiline.
+    const projectJsons = uniqueBy(localProjects.map((l) => l.projectJson), 'projectId')
+    const prefetchedVercelProjects = await this.prefetchVercelProjects(projectJsons, currentSession)
 
     const projects: LinkedProject[] = []
     for (const local of localProjects) {
@@ -144,13 +114,13 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
     return projects
   }
 
-  private async prefetchVercelProjects(projectIds: string[], currentSession: CustomAuthenticationSession) {
+  private async prefetchVercelProjects(projectJsons: ProjectJson[], currentSession: CustomAuthenticationSession) {
     const {accessToken, teamId} = currentSession
 
     const [entries, throws] = await settleAllPromises(
-      projectIds.map(async (id) => {
-        const response = await this.vercelApi.getProjectByNameOrId(id, accessToken, teamId)
-        return isValidVercelProject(response) ? ([id, response] as const) : undefined
+      projectJsons.map(async ({projectId, orgId}) => {
+        const response = await this.vercelApi.getProjectByNameOrId(projectId, accessToken, orgId ?? teamId)
+        return isValidVercelProject(response) ? ([projectId, response] as const) : undefined
       }),
     )
 
@@ -182,8 +152,9 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
       if (event.changed.length > 0) {
         const changedProjects = event.changed
 
-        const projectIds = [...new Set(changedProjects.map((local) => local.projectJson.projectId))]
-        const prefetchedVercelProjects = await this.prefetchVercelProjects(projectIds, currentSession)
+        // biome-ignore format: Biome bug? This shouldn't be multiline.
+        const projectJsons = uniqueBy(changedProjects.map((l) => l.projectJson), 'projectId')
+        const prefetchedVercelProjects = await this.prefetchVercelProjects(projectJsons, currentSession)
 
         for (const newLocal of changedProjects) {
           const linkedProjectIndex = this._linkedProjects.findIndex((linked) => linked.local.id === newLocal.id)
@@ -207,21 +178,10 @@ export class LinkedProjectsStateProvider implements vscode.Disposable {
           }
         }
       }
-
-      this.updateRemoteProjectIds()
     })
 
     this.onWillChangeLinkedProjectsEventEmitter.fire()
     await promise
-  }
-
-  private updateRemoteProjectIds(emitEvent = true) {
-    const newProjectIds = [...new Set(this._linkedProjects.map((project) => project.remote.id))]
-    const diff = diffArrays(this._remoteProjectIds, newProjectIds)
-
-    if (diff) {
-      this._remoteProjectIds = newProjectIds
-      if (emitEvent) this.onDidChangeRemoteProjectIdsEventEmitter.fire(diff)
-    }
+    this.onDidChangeLinkedProjectsEventEmitter.fire()
   }
 }

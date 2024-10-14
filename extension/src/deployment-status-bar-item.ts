@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import {CommandId, ContextId} from './constants'
 import {Deployment, DeploymentsStateProvider} from './deployments-state-provider'
 import {ContextKeys, Injectable} from './lib'
-import {LinkedProjectsStateProvider} from './linked-projects-state-provider'
+import {ProjectsStateProvider} from './projects-state-provider'
 import {CustomIcon} from './types'
 import {capitalize} from './utils'
 
@@ -16,14 +16,14 @@ export class DeploymentStatusBarItem implements vscode.Disposable {
   constructor(
     private readonly contextKeys: ContextKeys,
     private readonly deploymentsState: DeploymentsStateProvider,
-    private readonly linkedProjectsState: LinkedProjectsStateProvider,
+    private readonly projectsState: ProjectsStateProvider,
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right)
     this.statusBarItem.command = CommandId.SwitchFocusedProject
 
     this.disposable = vscode.Disposable.from(
-      this.linkedProjectsState.onDidChangeRemoteProjectIds(() => {
-        if (linkedProjectsState.remoteProjectIds.length < 1) {
+      this.projectsState.onDidChangeProjects(() => {
+        if (projectsState.projects.length < 1) {
           this.statusBarItem.hide()
         } else {
           this.statusBarItem.show()
@@ -48,7 +48,7 @@ export class DeploymentStatusBarItem implements vscode.Disposable {
   }
 
   setInitialDisplayState() {
-    if (this.linkedProjectsState.remoteProjectIds.length < 1) {
+    if (this.projectsState.projects.length < 1) {
       this.statusBarItem.hide()
     } else {
       this.statusBarItem.show()
