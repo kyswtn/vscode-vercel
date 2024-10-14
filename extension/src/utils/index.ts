@@ -5,6 +5,15 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
+export function uniqueBy<T extends object>(array: T[], key: keyof T) {
+  return array.reduce<T[]>((left, right) => {
+    if (!left.find((l) => l[key] === right[key])) {
+      left.push(right)
+    }
+    return left
+  }, [])
+}
+
 export function truncateWithEllipsis(str: string, maxLength?: number) {
   if (maxLength === undefined || str.length < maxLength) return str
   return `${str.substring(0, maxLength)}...`

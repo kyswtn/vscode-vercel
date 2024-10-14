@@ -3,11 +3,13 @@ import {parseDeploymentMeta} from './utils/vercel'
 
 export class VercelProject {
   public readonly id: string
+  public readonly teamId: string
   public readonly name: string
   private parsedLatestDeploymentMeta: ReturnType<typeof parseDeploymentMeta>
 
   constructor(private readonly project: PlainVercelProject) {
     this.id = project.id
+    this.teamId = project.accountId
     this.name = project.name
   }
 

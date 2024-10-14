@@ -22,7 +22,7 @@ export class AuthenticationStateProvider implements vscode.Disposable {
         this.onDidChangeCurrentSessionEventEmitter.fire((this._currentSession = session))
       }),
       this.onDidChangeCurrentSession((session) => {
-        void this.contextKeys.set(ContextId.IsAuthenticated, session !== undefined, 'globalState')
+        void this.contextKeys.set(ContextId.IsAuthenticated, session !== undefined)
       }),
     )
   }
@@ -40,7 +40,7 @@ export class AuthenticationStateProvider implements vscode.Disposable {
     this._currentSession = session as unknown as CustomAuthenticationSession
 
     // Do not emit an event to prevent an extra render. Only set the context key.
-    void this.contextKeys.set(ContextId.IsAuthenticated, session !== undefined, 'globalState')
+    void this.contextKeys.set(ContextId.IsAuthenticated, session !== undefined)
   }
 
   async checkIfAuthenticationIsStillValid() {

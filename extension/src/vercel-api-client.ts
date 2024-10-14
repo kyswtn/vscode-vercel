@@ -181,7 +181,7 @@ export class VercelApiClient {
       }
     }
 
-    if (searchParams) {
+    if (searchParams && searchParams.size > 0) {
       for (const [key, value] of searchParams) {
         url.searchParams.append(key, value)
       }

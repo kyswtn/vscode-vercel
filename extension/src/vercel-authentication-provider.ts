@@ -244,6 +244,7 @@ export class VercelAuthenticationProvider implements vscode.AuthenticationProvid
     }
 
     // TODO: Should I read `config.json` and get `currentTeamId`?
+    // Should Vercel CLI users care about teams at all? Isn't it an organizational wide token?
 
     return {accessToken: authJson.token}
   }

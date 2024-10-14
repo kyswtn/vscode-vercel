@@ -2,6 +2,7 @@
 /.direnv
 /node_modules
 /result
+.vercel/
 
 # for preview during development
 /example
