@@ -308,7 +308,7 @@
       "editor/title": [
         {
           "command": "vercel.saveOpenedFile",
-          "when": "resourceScheme === vscode-vercel",
+          "when": "resourceScheme === vscode-vercel-files",
           "group": "navigation"
         }
       ]
@@ -424,26 +424,28 @@
       },
       {
         "view": "vercel-deployment-files",
-        "contents": "No deployments are currently selected. \n[View Deployments](command:vercel-deployments.focus) \nSelect a deployment by clicking on \"View More\" button of a deployment item. ",
+        "contents": "No deployments are currently selected. \n[View Deployments](command:vercel-deployments.focus) \nSelect a deployment by clicking on \"View Files\" button of a deployment item. ",
         "when": "vercel:isReady && !vercel:focusedDeploymentId"
       }
     ]
   },
   "activationEvents": [
     "onStartupFinished",
-    "onFileSystem:vscode-vercel"
+    "onFileSystem:vscode-vercel-files"
   ],
   "bundleDependencies": [
     "@sindresorhus/slugify",
     "ms",
     "pathe",
     "reflect-metadata",
-    "strip-ansi"
+    "strip-ansi",
+    "@vercel/sdk"
   ],
   "dependencies": {
     "@sindresorhus/slugify": "^2.2.1",
     "@swc/core": "^1.4.8",
     "@swc/register": "^0.1.10",
+    "@vercel/sdk": "^14.0.0-canary.3",
     "@vscode/vsce": "^3.0.0",
     "dotenv-webpack": "^8.0.1",
     "glob": "^10.3.10",

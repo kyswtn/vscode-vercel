@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
+import {VercelProject} from '../models/vercel-project'
 import {PlainVercelProject} from '../types'
 import {showQuickPick} from './show-quickpick'
-import {VercelProject} from '../vercel-project'
 import {vercelProjectToQuickPickItem} from './show-vercel-project-quickpick'
 
 type ProjectToLinkQuickPickItem = vscode.QuickPickItem & {

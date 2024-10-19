@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import {VercelDeploymentEnvironment, VercelDeploymentState} from '../constants'
-import {DeploymentFilters, defaultDeploymentFilters} from '../deployment-filters-state-provider'
+import {DeploymentFilters, defaultDeploymentFilters} from '../state/deployment-filters-state-provider'
 import {showQuickPick} from './show-quickpick'
 
 type DeploymentFilterQuickPickItem = vscode.QuickPickItem & {

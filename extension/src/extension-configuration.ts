@@ -60,7 +60,8 @@ export class ExtensionConfiguration implements vscode.Disposable {
     const vscodeFilesExclude = this.filesConfig.get<Record<string, boolean>>('exclude', {})
     const vscodeFilesExcludeGlobs = Object.entries(vscodeFilesExclude)
       .filter(([, enabled]) => enabled)
-      .map(([globPattern]) => globPattern)
+      .map(([glob]) => glob)
+
     return [...vscodeFilesExcludeGlobs, ...this.vercelConfig.get<string[]>(ConfigId.FilesExclude, [])]
   }
 }

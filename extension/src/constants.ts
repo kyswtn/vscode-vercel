@@ -1,21 +1,17 @@
 export const extensionPrefix = 'vercel'
 
-export const fileSystemProviderScheme = 'vscode-vercel'
-export const enum UriAuthority {
-  Deployments = 'deployments',
-}
-export const enum DeploymentFileAccessType {
-  Events = 'events',
-  Files = 'files',
+export const enum FileSystemProviderScheme {
+  Files = 'vscode-vercel-files',
 }
 
 export const enum ContextId {
   IsReady = 'vercel:isReady',
   IsAuthenticated = 'vercel:isAuthenticated',
   NoProjectsFound = 'vercel:noProjectsFound',
+  SomeProjectsNotLinked = 'vercel:someProjectsNotLinked',
   DeploymentsFiltered = 'vercel:deploymentsFiltered',
   FocusedProjectId = 'vercel:focusedProjectId',
-  FocusedDeploymentId = 'vercel:focusedDeploymentId',
+  SelectedDeploymentIdForFiles = 'vercel:selectedDeploymentIdForFiles',
 }
 
 export const enum CommandId {
@@ -41,7 +37,7 @@ export const enum CommandId {
   FilterDeploymentsFilled = 'vercel.deployments.filterFilled',
   // Deployment Files
   RefreshDeploymentFiles = 'vercel.deploymentFiles.refresh',
-  SetFocusedDeploymentId = 'vercel:setFocusedDeploymentId',
+  SelectDeploymentForFiles = 'vercel:selectDeploymentForFiles',
 }
 
 export const enum ConfigId {
