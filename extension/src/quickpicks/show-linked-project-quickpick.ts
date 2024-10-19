@@ -1,7 +1,7 @@
 import ms from 'ms'
 import path from 'pathe'
 import * as vscode from 'vscode'
-import {LinkedProject} from '../linked-projects-state-provider'
+import {LinkedProject} from '../models/linked-project'
 import {CustomIcon} from '../types'
 import {showQuickPick} from './show-quickpick'
 

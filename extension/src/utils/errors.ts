@@ -18,6 +18,7 @@ export class VercelApiError extends Error {
   constructor(
     readonly code: string,
     override readonly message: string,
+    readonly status: number,
   ) {
     super()
   }

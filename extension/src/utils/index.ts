@@ -1,4 +1,7 @@
 import path from 'pathe'
+import * as vscode from 'vscode'
+import {noCommitMessage} from '../constants'
+import type {GitBranch, GitCommit, GitProviders, GitRepo, PlainVercelDeployment} from '../types'
 import {homedir, platform} from './node'
 
 export function capitalize(str: string) {
@@ -126,4 +129,153 @@ export function getDataDir(_productName: string): string {
 export function naiveGlobMatch(p: string, glob: string) {
   const regex = new RegExp(glob.replaceAll('**', '.*'), 'g')
   return regex.test(p)
+}
+
+export function vercelUsernameMarkdownLink(username: string) {
+  return `[@${username}](https://vercel.com/${username})`
+}
+
+export function vercelProjectMarkdownLink(teamId: string, projectName: string) {
+  return `[${projectName}](${`https://vercel.com/${teamId}/${projectName}`})`
+}
+
+export function parseDeploymentMeta(meta: PlainVercelDeployment['meta']) {
+  if (!meta) return
+
+  let provider: GitProviders | undefined
+  let repo: GitRepo | undefined
+  let branch: GitBranch | undefined
+  let commit: GitCommit | undefined
+
+  if ('githubDeployment' in meta) {
+    provider = 'github'
+
+    if (meta.githubOrg && meta.githubRepo) {
+      repo = {
+        org: meta.githubOrg,
+        repo: meta.githubRepo,
+        url: `https://github.com/${meta.githubOrg}/${meta.githubRepo}`,
+      }
+    }
+
+    if (meta.githubCommitRef) {
+      branch = {
+        name: meta.githubCommitRef,
+        url: repo && `${repo.url}/tree/${meta.githubCommitRef}`,
+      }
+    }
+
+    if (meta.githubCommitSha) {
+      commit = {
+        sha: meta.githubCommitSha,
+        message: meta.githubCommitMessage ?? noCommitMessage,
+        authorName: meta.githubCommitAuthorName ?? 'Unknown',
+        url: repo && `${repo.url}/commit/${meta.githubCommitSha}`,
+      }
+    }
+  }
+
+  if ('gitlabDeployment' in meta) {
+    provider = 'gitlab'
+
+    if (meta.gitlabProjectNamespace && meta.gitlabProjectRepo) {
+      repo = {
+        org: meta.gitlabProjectNamespace,
+        repo: meta.gitlabProjectRepo,
+        url: `https://gitlab.com/${meta.gitlabProjectPath}`,
+      }
+    }
+
+    if (meta.gitlabCommitRef) {
+      branch = {
+        name: meta.gitlabCommitRef,
+        url: repo && `${repo.url}/-/tree/${meta.gitlabCommitRef}`,
+      }
+    }
+
+    if (meta.gitlabCommitSha) {
+      commit = {
+        sha: meta.gitlabCommitSha,
+        message: meta.gitlabCommitMessage ?? noCommitMessage,
+        authorName: meta.gitlabCommitAuthorName ?? 'Unknown',
+        url: repo && `${repo.url}/-/commit/${meta.gitlabCommitSha}`,
+      }
+    }
+  }
+
+  if ('bitbucketDeployment' in meta) {
+    provider = 'bitbucket'
+
+    // TODO: Handle BitBucket deployments.
+  }
+
+  return {
+    provider,
+    repo,
+    branch,
+    commit,
+  }
+}
+
+/**
+ * Reads a json file and return serialized JSON, or undefined if JSON is invalid.
+ */
+export async function readJsonFile(file: vscode.Uri): Promise<unknown | undefined> {
+  const json = await vscode.workspace.fs
+    .readFile(file)
+    .then((buffer) => Buffer.from(buffer).toString('utf-8'))
+    .then((string) => {
+      try {
+        return JSON.parse(string)
+      } catch (_) {
+        return
+      }
+    })
+  return json
+}
+
+export async function writeFile(file: vscode.Uri, content: string | Buffer): Promise<void> {
+  const buffer = content instanceof Buffer ? content : Buffer.from(content, 'utf-8')
+  await vscode.workspace.fs.writeFile(file, buffer)
+}
+
+export async function fileExists(file: vscode.Uri): Promise<boolean> {
+  try {
+    await vscode.workspace.fs.stat(file)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+// The entire alphabet should be Vercel's ID safe. The first 36 digits are URI authority safe.
+const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'
+const base = BigInt(alphabet.length)
+
+/**
+ * Encode Vercel's ID string to be URI authority safe.
+ *
+ * Vercel's `deploymentId`, `projectId` and `teamId` can contain `/[a-Z]/` and is case-sensitive.
+ * If we want to put it in the URI's authority portion, we need to make it case-insensitive. Even
+ * though VSCode does allow you to force paths and queries to be case-sensitive but there's no such
+ * control over the authority.
+ */
+export function encodeId(id: string, reverse = false) {
+  let [from, to] = [base, 36n]
+  if (reverse) [from, to] = [to, from]
+
+  // Convert to BigInt decimal.
+  let decimal = id.split('').reduce((l, r) => l * from + BigInt(alphabet.indexOf(r)), 0n)
+
+  let result = ''
+  while (decimal > 0) {
+    result = alphabet[Number(decimal % to)] + result
+    decimal = decimal / to
+  }
+
+  return result
+}
+
+export function decodeId(id: string) {
+  return encodeId(id, /* reverse */ true)
 }
