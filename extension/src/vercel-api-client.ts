@@ -2,6 +2,7 @@ import {VercelDeploymentEnvironment} from './constants'
 import {Injectable, Logger} from './lib'
 import type {
   PlainVercelDeployment,
+  PlainVercelDeploymentListed,
   PlainVercelProject,
   VercelCheck,
   VercelDeploymentEvent,
@@ -110,6 +111,16 @@ export class VercelApiClient {
     return json.deployments ?? []
   }
 
+  async getDeploymentById(deploymentId: string, accessToken: string, teamId?: string) {
+    const json = await this.doFetch<PlainVercelDeployment>({
+      path: `/v13/deployments/${deploymentId}`,
+      accessToken,
+      teamId,
+    })
+
+    return json
+  }
+
   async getDeploymentEvents(deploymentId: string, accessToken: string, teamId?: string) {
     const json = await this.doFetch({
       path: `/v3/deployments/${deploymentId}/events`,
@@ -168,7 +179,7 @@ export class VercelApiClient {
 
   private async doFetch<T, K extends boolean = false>(
     params: FetchWrappedParams<K>,
-  ): Promise<K extends true ? ArrayBuffer : Partial<T>> {
+  ): Promise<K extends true ? ArrayBuffer : T> {
     const {path: urlPath, baseUrl, getArrayBuffer, searchParams, accessToken, teamId, ...options} = params
 
     const url = new URL(urlPath, baseUrl ?? this.baseUrl)
@@ -198,7 +209,7 @@ export class VercelApiClient {
       if (!response.ok) {
         const error = await parseVercelErrorFromResponse(response)
         throw error
-          ? new VercelApiError(error.code, error.message)
+          ? new VercelApiError(error.code, error.message, response.status)
           : new Error(`Request failed with status code ${response.status} ${response.statusText}.`)
       }
 
@@ -222,7 +233,7 @@ export class VercelApiClient {
       }
 
       // @ts-ignore
-      return json as Partial<T>
+      return json as T
     } catch (_error) {
       let error = _error
 
@@ -231,6 +242,11 @@ export class VercelApiClient {
       } else {
         this.logger.error(`Unknown error ${error}`)
         error = new Error('Request failed with an unknown error.')
+      }
+
+      if ((error as Error).message === 'fetch failed') {
+        this.logger.error('Extension seems to be offline.')
+        error = new Error('Request could not be made.')
       }
 
       throw error
@@ -256,7 +272,7 @@ declare namespace VercelApiClient {
   }
 
   type ListDeploymentsResponse = {
-    deployments: PlainVercelDeployment[]
+    deployments: PlainVercelDeploymentListed[]
   }
 
   type PullProjectEnvsResponse = {

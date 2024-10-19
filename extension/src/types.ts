@@ -1,8 +1,6 @@
 import * as vscode from 'vscode'
 import {VercelDeploymentState} from './constants'
 
-export type CustomIcon = `custom-icons-${keyof typeof import('./custom-icons.json')}`
-
 export type AuthJson = {
   token: string
 }
@@ -13,6 +11,8 @@ export type ProjectJson = {
 }
 
 // #region VSCode related types.
+
+export type CustomIcon = `custom-icons-${keyof typeof import('./custom-icons.json')}`
 
 export interface CustomAuthenticationSession extends vscode.AuthenticationSession {
   teamId?: string
@@ -46,10 +46,7 @@ export type GitCommit = {
 
 // #region Vercel related types.
 
-// 1. As the data these types represent are external, all non-optional, non-partial types must be
-//    validated before use.
-// 2. Don't type unless used. Type only enough to be used.
-// 3. All violations of rules above must come with a SAFETY note.
+// Don't type unless used. Type only enough to be used.
 
 export type RedirectUriResponseQuery = {
   code: string
@@ -66,14 +63,12 @@ export type VercelUser = {
   id: string
   username: string
 
-  // SAFETY: Vercel API documentation confirms this enum.
-  version?: 'northstar'
+  version?: string
   defaultTeamId?: string
 }
 
 // As returned from v2/teams/:id.
 export type VercelTeam = {
-  // SAFETY: Vercel API documentation confirms these aren't optional.
   id: string
   name: string
 }
@@ -123,26 +118,26 @@ type VercelProjectLink = (
   productionBranch: string
 }
 
-// SAFETY: Vercel API documentation confirms these enums are exhausted.
-
-type VercelV6DeploymentSource = 'api-trigger-git-deploy' | 'cli' | 'clone/repo' | 'git' | 'import' | 'import/repo'
-type VercelV6DeploymentTarget = 'production' | null
-
-// As returned from v6/deployments?projectId.
+// As returned from v13/deployments/deploymentId.
 export type PlainVercelDeployment = {
-  uid: string
+  id: string
   name: string
   createdAt: number
 
   url?: string
   state?: VercelDeploymentState
-  source?: VercelV6DeploymentSource
+  source?: VercelDeploymentSource
   meta?: Partial<VercelDeploymentMeta>
   ready?: number
-  target?: VercelV6DeploymentTarget
+  target?: VercelDeploymentTarget
   bootedAt?: number
 }
 
+// As returned from v6/deployments?projectId.
+export type PlainVercelDeploymentListed = Omit<PlainVercelDeployment, 'id'> & {uid: string}
+
+type VercelDeploymentSource = 'api-trigger-git-deploy' | 'cli' | 'clone/repo' | 'git' | 'import' | 'import/repo'
+export type VercelDeploymentTarget = 'production' | null
 type VercelDeploymentMeta =
   | {
       githubDeployment: '1'
@@ -199,7 +194,6 @@ type VercelDeploymentMeta =
       // TODO: Add Bitbucket deployment meta interface.
     }
 
-// SAFETY: Vercel API documentation confirms these enums are exhausted.
 type VercelDeploymentEventType =
   | 'command'
   | 'stdout'
@@ -227,6 +221,10 @@ export type VercelFile =
       type: 'file' | 'lambda'
       name: string
       link: string
+    }
+  | {
+      type: 'middleware'
+      name: string
     }
 
 export type VercelCheckStatus = 'registered' | 'running' | 'completed'

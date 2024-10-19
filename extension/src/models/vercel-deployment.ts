@@ -1,0 +1,40 @@
+import {VercelDeploymentState} from '../constants'
+import {PlainVercelDeployment, PlainVercelDeploymentListed} from '../types'
+import {encodeId, parseDeploymentMeta} from '../utils'
+import {VercelProject} from './vercel-project'
+
+export class VercelDeployment {
+  public readonly id: string
+  public readonly name: string
+  public readonly state: VercelDeploymentState | undefined
+  public readonly url: string | undefined
+  public readonly authority: string
+  private readonly metaParsed: ReturnType<typeof parseDeploymentMeta>
+
+  constructor(
+    public readonly data: PlainVercelDeployment | PlainVercelDeploymentListed,
+    public readonly project: VercelProject,
+  ) {
+    this.id = 'id' in data ? data.id : data.uid
+    this.name = data.name
+    this.url = data.url
+    this.state = data.state
+    this.authority = `${encodeId(this.id)}.${this.project.authority}`
+
+    if (data.meta) {
+      this.metaParsed = parseDeploymentMeta(data.meta)
+    }
+  }
+
+  get repo() {
+    return this.metaParsed?.repo
+  }
+
+  get branch() {
+    return this.metaParsed?.branch
+  }
+
+  get commit() {
+    return this.metaParsed?.commit
+  }
+}

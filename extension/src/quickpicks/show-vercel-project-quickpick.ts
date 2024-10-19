@@ -1,7 +1,7 @@
 import ms from 'ms'
 import * as vscode from 'vscode'
+import {VercelProject} from '../models/vercel-project'
 import {CustomIcon} from '../types'
-import {VercelProject} from '../vercel-project'
 import {showQuickPick} from './show-quickpick'
 
 type VercelProjectToQuickPickItem = vscode.QuickPickItem & {
