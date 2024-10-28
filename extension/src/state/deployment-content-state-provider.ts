@@ -1,31 +1,30 @@
-import path from 'pathe'
 import stripAnsi from 'strip-ansi'
 import * as vscode from 'vscode'
-import {ContextId} from '../constants'
+import {ContextId, finishedDeploymentStates} from '../constants'
 import {ContextKeys, Injectable} from '../lib'
 import {VercelDeployment} from '../models/vercel-deployment'
-import {formatTimestamp} from '../utils'
+import {formatTimestamp, isLogFilePath} from '../utils'
 import {VercelApiClient} from '../vercel-api-client'
 import {AuthenticationStateProvider} from './authentication-state-provider'
 import {DeploymentsStateProvider} from './deployments-state-provider'
 
-type FileContent = {
+export type FileContent = {
   bytes: Buffer
   size: number
   ctime: number
   mtime: number
 }
 
-type GetFileContentOptions = {
+export type GetFileOptions = {
   teamId: string
   projectId: string
   deploymentId: string
   filePath: string
-  version: 'v6' | undefined
+  apiVersion: string | undefined
 }
 
 @Injectable()
-export class DeploymentFilesStateProvider implements vscode.Disposable {
+export class DeploymentContentStateProvider implements vscode.Disposable {
   // We only have one sidebar, so files for only one deployment can be displayed at a time.
   // Everytime this gets mutated, we'll reset the cache, otherwise the cache will never be GC-ed.
   private _selectedDeployment: VercelDeployment | undefined
@@ -63,42 +62,40 @@ export class DeploymentFilesStateProvider implements vscode.Disposable {
       this.onDidChangeSelectedDeploymentEventEmitter.fire()
     }
 
-    /**
-     * The value for this should be in the format `teamId/projectId/deploymentId`. The reason is to
-     * make it stateless to make viewing deployment files separately accessible outside of current
-     * workspace projects, in the future.
-     */
-    const deploymentId = [deployment.project.teamId, deployment.project.id, deployment.id].join('/')
-    await this.contextKeys.set(ContextId.SelectedDeploymentIdForFiles, deploymentId)
+    await this.contextKeys.set(ContextId.SelectedDeploymentIdForFiles, deployment.hashPath)
   }
 
   get onDidChangeSelectedDeployment() {
     return this.onDidChangeSelectedDeploymentEventEmitter.event
   }
 
-  async getFile(options: GetFileContentOptions) {
+  async getFile(options: GetFileOptions) {
     const currentSession = this.authState.currentSession
     if (!currentSession) return
     const {accessToken} = currentSession
 
-    const {deploymentId, projectId, teamId, filePath, version} = options
+    const {deploymentId, projectId, teamId, filePath, apiVersion} = options
     const deployment = await this.deploymentsState.getDeploymentOrFetch(deploymentId, projectId, teamId)
     if (!deployment) throw vscode.FileSystemError.FileNotFound('Deployment for the file could not be found.')
 
-    const key = [teamId, projectId, deploymentId, filePath].join('/')
+    const key = `${deployment.hashPath}/${filePath}`
     const memoized = this.files.get(key)
     if (memoized) return memoized
 
-    const isLogFile = ['.', '/'].includes(path.dirname(filePath)) && path.extname(filePath) === '.log'
-    const file = isLogFile
-      ? await this.getEvents(deploymentId, accessToken, teamId)
-      : await this.getFileContent(deploymentId, filePath, version, accessToken, teamId)
+    const isLogFile = isLogFilePath(filePath)
+    const file: FileContent = isLogFile
+      ? await this.getBuildLogs(deploymentId, accessToken, teamId)
+      : await this.getFileContent(deploymentId, filePath, apiVersion, accessToken, teamId)
 
     // Set default ctime & mtime.
     file.ctime = file.ctime || (deployment.data.createdAt ?? 0)
     file.mtime = file.mtime || (deployment.data.bootedAt ?? file.ctime)
 
-    this.files.set(key, file)
+    // If the file is a log file, only cache if the deployment is done.
+    if (!isLogFile || finishedDeploymentStates.includes(deployment.state)) {
+      this.files.set(key, file)
+    }
+
     return file
   }
 
@@ -126,7 +123,9 @@ export class DeploymentFilesStateProvider implements vscode.Disposable {
     }
   }
 
-  private async getEvents(deploymentId: string, accessToken: string, teamId: string) {
+  private async getBuildLogs(deploymentId: string, accessToken: string, teamId: string) {
+    // Build logs are internally referred to as deployment events.
+
     const events = await this.vercelApi.getDeploymentEvents(deploymentId, accessToken, teamId)
     const ctime = events[0]?.created ?? 0
     const mtime = (events.length > 0 ? events[events.length - 1]?.created : ctime) ?? 0

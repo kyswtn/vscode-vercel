@@ -3,13 +3,13 @@ import {Injectable, Logger} from '../lib'
 import {VercelDeployment} from '../models/vercel-deployment'
 import {VercelProject} from '../models/vercel-project'
 import {settleAllPromises} from '../utils'
+import {VercelApiError} from '../utils/errors'
 import {LoadingState} from '../utils/loading-state'
 import {PromiseQueue} from '../utils/promise-queue'
 import {VercelApiClient} from '../vercel-api-client'
 import {AuthenticationStateProvider} from './authentication-state-provider'
 import {DeploymentFiltersStateProvider} from './deployment-filters-state-provider'
 import {OnDidChangeProjectsEvent, ProjectsStateProvider} from './projects-state-provider'
-import {VercelApiError} from '../utils/errors'
 
 @Injectable()
 export class DeploymentsStateProvider implements vscode.Disposable {
@@ -77,6 +77,18 @@ export class DeploymentsStateProvider implements vscode.Disposable {
     await promise
   }
 
+  async loadDeploymentsInBackground() {
+    const currentSession = this.authState.currentSession
+    if (!currentSession) return
+
+    const projects = this.projectsState.projects
+    if (projects.length === 0) return
+
+    const filters = this.deploymentFiltersState.searchParams
+    this._deployments = await this.fetchVercelDeploymentsFromProjects(projects, filters, currentSession.accessToken)
+    this.onDidChangeDeploymentsEventEmitter.fire()
+  }
+
   getCurrentDeployments() {
     return this.getOnePerProject(
       this.deployments.filter(
@@ -114,6 +126,20 @@ export class DeploymentsStateProvider implements vscode.Disposable {
       if (error instanceof VercelApiError && error.status === 404) return
       throw error
     }
+  }
+
+  async refreshDeployment(deploymentId: string) {
+    const currentSession = this.authState.currentSession
+    if (!currentSession) return
+
+    const deploymentIndex = this._deployments.findIndex((deployment) => deployment.id === deploymentId)
+    const existingDeployment = this._deployments[deploymentIndex]!
+    if (!existingDeployment) return
+
+    const newDeployment = await this.vercelApi
+      .getDeploymentById(deploymentId, currentSession.accessToken, existingDeployment.project.teamId)
+      .then((data) => new VercelDeployment(data, existingDeployment.project))
+    this._deployments.splice(deploymentIndex, 1, newDeployment)
   }
 
   private getOnePerProject(deployments: VercelDeployment[]) {

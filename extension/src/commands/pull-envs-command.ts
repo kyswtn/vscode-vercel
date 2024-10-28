@@ -9,15 +9,16 @@ import {AuthenticationStateProvider} from '../state/authentication-state-provide
 import {LinkedProjectsStateProvider} from '../state/linked-projects-state-provider'
 import {fileExists, recordToDotenv, writeFile} from '../utils'
 import {VercelApiClient} from '../vercel-api-client'
+import {showUnauthorizedErrorMessage} from '../utils/errors'
 
 @Injectable()
 export class PullEnvsCommand implements vscode.Disposable {
   private readonly disposable: vscode.Disposable
 
   constructor(
+    private readonly authState: AuthenticationStateProvider,
     private readonly linkedProjectsState: LinkedProjectsStateProvider,
     private readonly vercelApi: VercelApiClient,
-    private readonly auth: AuthenticationStateProvider,
   ) {
     this.disposable = vscode.commands.registerCommand(CommandId.PullEnvs, this.run, this)
   }
@@ -27,8 +28,11 @@ export class PullEnvsCommand implements vscode.Disposable {
   }
 
   async run(project?: LinkedProject, environment?: VercelDeploymentEnvironment) {
-    const currentSession = this.auth.currentSession
-    if (!currentSession) return
+    const currentSession = this.authState.currentSession
+    if (!currentSession) {
+      await showUnauthorizedErrorMessage()
+      return
+    }
     const {accessToken, teamId: authenticatedTeamId} = currentSession
 
     const selectedProject = project ?? (await showLinkedProjectQuickPick(this.linkedProjectsState.linkedProjects))

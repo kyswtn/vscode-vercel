@@ -8,18 +8,18 @@ import {logAndShowErrorMessage} from '../utils/errors'
 export class SignOutCommand implements vscode.Disposable {
   private readonly disposable: vscode.Disposable
 
-  constructor(private readonly auth: AuthenticationStateProvider) {
+  constructor(private readonly authState: AuthenticationStateProvider) {
     this.disposable = vscode.commands.registerCommand(CommandId.SignOut, this.run, this)
   }
 
   async run() {
-    if (!this.auth.currentSession) {
+    if (!this.authState.currentSession) {
       await vscode.window.showErrorMessage("You're not signed in yet.")
       return
     }
 
     try {
-      await this.auth.signOut()
+      await this.authState.signOut()
       await vscode.window.showInformationMessage('Successfully signed out.')
     } catch (error) {
       logAndShowErrorMessage(error, 'sign out')

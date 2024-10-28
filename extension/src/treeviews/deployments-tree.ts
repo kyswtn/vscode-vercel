@@ -1,11 +1,19 @@
 import ms from 'ms'
 import * as vscode from 'vscode'
-import {CommandId, FileSystemProviderScheme, TreeId, TreeItemContextValue, VercelDeploymentState} from '../constants'
+import {
+  CommandId,
+  ConfigId,
+  FileSystemProviderScheme,
+  TreeId,
+  TreeItemContextValue,
+  VercelDeploymentState,
+} from '../constants'
 import {Injectable} from '../lib'
 import {VercelDeployment} from '../models/vercel-deployment'
 import {showDeploymentFiltersQuickPick} from '../quickpicks/show-deployment-filters-quickpick'
 import {DeploymentFiltersStateProvider} from '../state/deployment-filters-state-provider'
 import {DeploymentsStateProvider} from '../state/deployments-state-provider'
+import {ExtensionConfigStateProvider} from '../state/extension-config-state-provider'
 import {CustomIcon, GitBranch, GitCommit} from '../types'
 import {capitalize, withMarkdownUrl} from '../utils'
 
@@ -172,13 +180,23 @@ export class DeploymentViewFilesItem extends vscode.TreeItem {
 @Injectable()
 export class DeploymentsTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem>, vscode.Disposable {
   private isLoading = false
+  private refreshInterval: ReturnType<typeof setInterval> | undefined
   private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter<vscode.TreeItem | undefined>()
   private readonly disposable: vscode.Disposable
 
-  constructor(private readonly deploymentsState: DeploymentsStateProvider) {
+  constructor(
+    private readonly deploymentsState: DeploymentsStateProvider,
+    private readonly extensionConfig: ExtensionConfigStateProvider,
+  ) {
+    this.configureRefreshInterval()
     this.disposable = vscode.Disposable.from(
-      deploymentsState.onWillChangeDeployments(() => {
+      this.deploymentsState.onWillChangeDeployments(() => {
         this.refreshRoot()
+      }),
+      this.extensionConfig.onDidChangeConfig((configId) => {
+        if ([ConfigId.DeploymentsAutoRefresh, ConfigId.DeploymentsAutoRefreshPeriod].includes(configId)) {
+          this.configureRefreshInterval()
+        }
       }),
     )
   }
@@ -186,6 +204,7 @@ export class DeploymentsTreeDataProvider implements vscode.TreeDataProvider<vsco
   dispose() {
     this.disposable.dispose()
     this.onDidChangeTreeDataEventEmitter.dispose()
+    clearInterval(this.refreshInterval)
   }
 
   get onDidChangeTreeData() {
@@ -239,6 +258,16 @@ export class DeploymentsTreeDataProvider implements vscode.TreeDataProvider<vsco
       items.push(new DeploymentViewFilesItem(deployment.id, project.id, project.teamId))
     }
     return items
+  }
+
+  private configureRefreshInterval() {
+    clearInterval(this.refreshInterval)
+    if (!this.extensionConfig.deploymentsAutoRefresh) return
+
+    this.refreshInterval = setInterval(() => {
+      this.deploymentsState.loadDeploymentsInBackground()
+      this.refreshRoot()
+    }, this.extensionConfig.deploymentsAutoRefreshPeriod * 1000)
   }
 }
 

@@ -2,6 +2,10 @@ import * as vscode from 'vscode'
 import {Logger} from '../lib'
 import {PlainVercelError} from '../types'
 
+export async function showUnauthorizedErrorMessage() {
+  await vscode.window.showErrorMessage('User must be signed in to perform this action.')
+}
+
 const logger = new Logger('UnknownError')
 export async function logAndShowErrorMessage(error: unknown, action?: string) {
   let message: string

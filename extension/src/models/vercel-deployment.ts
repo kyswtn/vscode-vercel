@@ -9,6 +9,7 @@ export class VercelDeployment {
   public readonly state: VercelDeploymentState | undefined
   public readonly url: string | undefined
   public readonly authority: string
+  public readonly hashPath: string
   private readonly metaParsed: ReturnType<typeof parseDeploymentMeta>
 
   constructor(
@@ -20,6 +21,7 @@ export class VercelDeployment {
     this.url = data.url
     this.state = data.state
     this.authority = `${encodeId(this.id)}.${this.project.authority}`
+    this.hashPath = `${this.project.hashPath}/${this.id}`
 
     if (data.meta) {
       this.metaParsed = parseDeploymentMeta(data.meta)

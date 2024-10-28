@@ -7,6 +7,7 @@ export class VercelProject {
   public readonly teamId: string
   public readonly url: string
   public readonly authority: string
+  public readonly hashPath: string
   private readonly parsedLatestDeploymentMeta: ReturnType<typeof parseDeploymentMeta>
 
   constructor(private readonly project: PlainVercelProject) {
@@ -15,6 +16,7 @@ export class VercelProject {
     this.teamId = project.accountId
     this.url = `https://vercel.com/${this.teamId}/${this.name}`
     this.authority = `${encodeId(this.id)}.${encodeId(this.teamId)}`
+    this.hashPath = `${this.teamId}/${this.id}`
 
     const latestDeploymentMeta = this.project.latestDeployments?.[0]?.meta
     if (latestDeploymentMeta) {

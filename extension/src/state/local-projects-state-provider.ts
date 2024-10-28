@@ -1,12 +1,11 @@
 import path from 'pathe'
 import * as vscode from 'vscode'
-import {ContextId, FilePattern, projectJsonPath} from '../constants'
-import {ExtensionConfiguration, OnDidChangeFilesExcludeEvent} from '../extension-configuration'
+import {ConfigId, ContextId, FilePattern, projectJsonPath} from '../constants'
 import {ContextKeys, Injectable, Logger, type WatchedFileChangeEvent} from '../lib'
 import {LocalProject} from '../models/local-project'
-import {diffArrays, naiveGlobMatch, normalizePath, readJsonFile, settleAllPromises} from '../utils'
+import {diffArrays, isValidProjectJson, naiveGlobMatch, normalizePath, readJsonFile, settleAllPromises} from '../utils'
 import {PromiseQueue} from '../utils/promise-queue'
-import {isValidProjectJson} from '../utils/validation'
+import {ExtensionConfigStateProvider} from './extension-config-state-provider'
 import {FileWatchersStateProvider} from './file-watchers-state-provider'
 import {FoldersStateProvider} from './folders-state-provider'
 
@@ -29,7 +28,7 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
 
   constructor(
     private readonly contextKeys: ContextKeys,
-    private readonly extensionConfig: ExtensionConfiguration,
+    private readonly extensionConfig: ExtensionConfigStateProvider,
     private readonly fileWatchersState: FileWatchersStateProvider,
     private readonly foldersState: FoldersStateProvider,
   ) {
@@ -44,8 +43,9 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
       this.fileWatchersState.onDidChangeWatchedFiles((event) => {
         void updateLocalProjectsQueue.enqueue(() => this.updateLocalProjectsWhenWatchedFilesChanged(event))
       }),
-      this.extensionConfig.onDidChangeFilesExclude((event) => {
-        void updateLocalProjectsQueue.enqueue(() => this.updateLocalProjectsWhenConfigChanged(event))
+      this.extensionConfig.onDidChangeConfig((configId) => {
+        if (configId !== ConfigId.FilesExclude) return
+        void updateLocalProjectsQueue.enqueue(() => this.updateLocalProjectsWhenConfigChanged())
       }),
       this.onDidChangeLocalProjectsEventEmitter.event(() => {
         const noProjectsFound = this._localProjects.length === 0
@@ -71,7 +71,7 @@ export class LocalProjectsStateProvider implements vscode.Disposable {
     this._localProjects = await this.getProjectsFromMultipleWorkspaceFolders(this.foldersState.folders)
   }
 
-  private async updateLocalProjectsWhenConfigChanged(_event: OnDidChangeFilesExcludeEvent) {
+  private async updateLocalProjectsWhenConfigChanged() {
     // It's no longer worth it to read event and filter out projects as that means we need to parse
     // complex glob patterns so just reload & emit an event on diff.
     const oldLocalProjects = this._localProjects

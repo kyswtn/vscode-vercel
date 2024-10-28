@@ -44,7 +44,7 @@ export class DemoVercelApiClient extends VercelApiClient {
       ? demoData.projects.find((p) => p.accountId === teamId && (p.name === nameOrId || p.id === nameOrId))
       : demoData.projects.find((p) => p.name === nameOrId || p.id === nameOrId)
 
-    if (!project) throw new VercelApiError('404', 'not found')
+    if (!project) throw new VercelApiError('File not found', 'not found', 404)
     return project
   }
 
