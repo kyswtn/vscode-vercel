@@ -41,7 +41,10 @@ export const enum CommandId {
 }
 
 export const enum ConfigId {
-  FilesExclude = 'files.exclude',
+  FilesExclude = 'vercel.files.exclude',
+  LogsAutoRefresh = 'vercel.logs.autorefresh',
+  DeploymentsAutoRefresh = 'vercel.deployments.autorefresh',
+  DeploymentsAutoRefreshPeriod = 'vercel.deployments.autorefreshPeriod',
 }
 
 export const enum TreeId {
@@ -94,3 +97,9 @@ export const enum VercelDeploymentEnvironment {
   Production = 'production',
   Preview = 'preview',
 }
+
+export const finishedDeploymentStates = [
+  VercelDeploymentState.Ready,
+  VercelDeploymentState.Error,
+  VercelDeploymentState.Canceled as VercelDeploymentState | undefined,
+]

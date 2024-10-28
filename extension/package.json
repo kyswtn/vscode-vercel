@@ -59,6 +59,21 @@
           "default": [
             "**/node_modules"
           ]
+        },
+        "vercel.logs.autorefresh": {
+          "description": "When set to true, build logs (deployment events) will automatically be fetched and updated every few seconds.",
+          "type": "boolean",
+          "default": true
+        },
+        "vercel.deployments.autorefresh": {
+          "description": "When set to true, deployments will automatically be fetched and updated every few seconds.",
+          "type": "boolean",
+          "default": true
+        },
+        "vercel.deployments.autorefreshPeriod": {
+          "description": "Duration in seconds between each automatic deployment refresh, when #vercel.deployments.autorefresh# is enabled.",
+          "type": "number",
+          "default": 6
         }
       }
     },
@@ -421,6 +436,11 @@
         "view": "vercel-deployments",
         "contents": "No deployments were found.",
         "when": "vercel:isReady && vercel:isAuthenticated && !vercel:noProjectsFound && !vercel:deploymentsFiltered"
+      },
+      {
+        "view": "vercel-projects",
+        "contents": "Some projects could not be linked.",
+        "when": "vercel:isReady && vercel:isAuthenticated && vercel:someProjectsNotLinked"
       },
       {
         "view": "vercel-deployment-files",

@@ -1,7 +1,10 @@
 import path from 'pathe'
 import * as vscode from 'vscode'
 import {noCommitMessage} from '../constants'
+import {Logger} from '../lib'
 import type {GitBranch, GitCommit, GitProviders, GitRepo, PlainVercelDeployment} from '../types'
+import {AuthJson, type ProjectJson} from '../types'
+import {makeNaiveObjectValidator} from './naive-object-validator'
 import {homedir, platform} from './node'
 
 export function capitalize(str: string) {
@@ -278,4 +281,34 @@ export function encodeId(id: string, reverse = false) {
 
 export function decodeId(id: string) {
   return encodeId(id, /* reverse */ true)
+}
+
+function makeLoggingValidator<T>(...options: Parameters<typeof makeNaiveObjectValidator>) {
+  const logger = new Logger(`${options[0]}Validation`)
+  const validate = makeNaiveObjectValidator<T>(...options)
+
+  return (object: unknown): object is T => {
+    const errors = validate(object)
+    for (const error of errors) {
+      logger.error(error.message)
+    }
+    return errors.length === 0
+  }
+}
+
+export const isValidAuthJson = makeLoggingValidator<AuthJson>('AuthJson', {
+  token: 'string',
+})
+
+export const isValidProjectJson = makeLoggingValidator<ProjectJson>('ProjectJson', {
+  orgId: 'string',
+  projectId: 'string',
+})
+
+/**
+ * If a file path is not within any directory (except root) and has a `.log` extension, then it's
+ * a log file.
+ */
+export function isLogFilePath(filePath: string) {
+  return ['.', '/'].includes(path.dirname(filePath)) && path.extname(filePath) === '.log'
 }

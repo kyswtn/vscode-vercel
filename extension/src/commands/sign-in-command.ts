@@ -10,7 +10,7 @@ export class SignInCommand implements vscode.Disposable {
   private checkCount = 0
   private readonly disposable: vscode.Disposable
 
-  constructor(private readonly auth: AuthenticationStateProvider) {
+  constructor(private readonly authState: AuthenticationStateProvider) {
     this.disposable = vscode.commands.registerCommand(CommandId.SignIn, this.run, this)
   }
 
@@ -19,14 +19,14 @@ export class SignInCommand implements vscode.Disposable {
   }
 
   async run() {
-    const currentSession = this.auth.currentSession
+    const currentSession = this.authState.currentSession
     if (currentSession) {
       await this.showSignOutSuggestion(currentSession)
       return
     }
 
     try {
-      const session = await this.auth.signIn()
+      const session = await this.authState.signIn()
       const username = vercelUsernameMarkdownLink(session.account.label)
       await vscode.window.showInformationMessage(`Vercel account ${username} has been added.`)
     } catch (error) {

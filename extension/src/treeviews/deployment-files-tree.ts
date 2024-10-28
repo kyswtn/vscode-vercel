@@ -4,7 +4,7 @@ import {CommandId, FileSystemProviderScheme, TreeId} from '../constants'
 import {Injectable} from '../lib'
 import {VercelDeployment} from '../models/vercel-deployment'
 import {AuthenticationStateProvider} from '../state/authentication-state-provider'
-import {DeploymentFilesStateProvider} from '../state/deployment-files-state-provider'
+import {DeploymentContentStateProvider} from '../state/deployment-content-state-provider'
 import {DeploymentsStateProvider} from '../state/deployments-state-provider'
 import {VercelFile} from '../types'
 import {VercelApiClient} from '../vercel-api-client'
@@ -26,11 +26,11 @@ export class DeploymentFilesTreeDataProvider
   private readonly disposable: vscode.Disposable
 
   constructor(
-    private readonly auth: AuthenticationStateProvider,
-    private readonly filesState: DeploymentFilesStateProvider,
+    private readonly authState: AuthenticationStateProvider,
+    private readonly deploymentContentState: DeploymentContentStateProvider,
     private readonly vercelApi: VercelApiClient,
   ) {
-    this.disposable = this.filesState.onDidChangeSelectedDeployment(() => {
+    this.disposable = this.deploymentContentState.onDidChangeSelectedDeployment(() => {
       this.refreshRoot()
     })
   }
@@ -90,11 +90,11 @@ export class DeploymentFilesTreeDataProvider
       }))
     }
 
-    const currentSession = this.auth.currentSession
+    const currentSession = this.authState.currentSession
     if (!currentSession) return []
     const {accessToken, teamId: defaultTeamId} = currentSession
 
-    const deployment = this.filesState.selectedDeployment
+    const deployment = this.deploymentContentState.selectedDeployment
     if (!deployment || !deployment.data.url) return []
 
     const teamId = deployment.project.teamId ?? defaultTeamId
@@ -129,7 +129,7 @@ export class DeploymentFilesTreeView implements vscode.Disposable {
   constructor(
     private readonly treeDataProvider: DeploymentFilesTreeDataProvider,
     private readonly deploymentsState: DeploymentsStateProvider,
-    private readonly filesState: DeploymentFilesStateProvider,
+    private readonly deploymentContentState: DeploymentContentStateProvider,
   ) {
     this.treeView = vscode.window.createTreeView(TreeId.DeploymentFiles, {
       treeDataProvider,
@@ -152,7 +152,7 @@ export class DeploymentFilesTreeView implements vscode.Disposable {
     const deployment = await this.deploymentsState.getDeploymentOrFetch(deploymentId, projectId, teamId)
     if (!deployment) return
 
-    await this.filesState.setSelectedDeployment(deployment)
+    await this.deploymentContentState.setSelectedDeployment(deployment)
     await vscode.commands.executeCommand(`${TreeId.DeploymentFiles}.focus`)
   }
 

@@ -2,10 +2,10 @@ import path from 'pathe'
 import * as vscode from 'vscode'
 import {CommandId} from '../constants'
 import {Injectable} from '../lib'
-import {FilesFileSystemProvider} from '../shared/custom-file-system-provider'
+import {CustomFileSystemProvider} from '../shared/custom-file-system-provider'
 import {FoldersStateProvider} from '../state/folders-state-provider'
 import {LinkedProjectsStateProvider} from '../state/linked-projects-state-provider'
-import {writeFile} from '../utils'
+import {isLogFilePath, writeFile} from '../utils'
 import {logAndShowErrorMessage} from '../utils/errors'
 
 @Injectable()
@@ -13,7 +13,7 @@ export class SaveOpenedFileCommand implements vscode.Disposable {
   private readonly disposable: vscode.Disposable
 
   constructor(
-    private readonly customFileSystemProvider: FilesFileSystemProvider,
+    private readonly customFileSystemProvider: CustomFileSystemProvider,
     private readonly foldersState: FoldersStateProvider,
     private readonly linkedProjectsState: LinkedProjectsStateProvider,
   ) {
@@ -33,8 +33,7 @@ export class SaveOpenedFileCommand implements vscode.Disposable {
     if (!directoryToSaveIn) throw new Error('No opened folder was found to save the file in.')
 
     let filePathToSaveIn = path.basename(filePath)
-    const isLogFile = ['.', '/'].includes(path.dirname(filePath)) && path.extname(filePath) === '.log'
-    if (isLogFile) {
+    if (isLogFilePath(filePath)) {
       const deploymentIdWithoutPrefix = deploymentId.split('dpl_').pop()!
       const deploymentName = path.basename(filePath, '.log')
       filePathToSaveIn = `${deploymentName}-${deploymentIdWithoutPrefix.slice(0, 7)}.log`

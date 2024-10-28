@@ -3,10 +3,9 @@ import * as vscode from 'vscode'
 import {AuthenticationMethod} from '../constants'
 import {Injectable, SecretStorage} from '../lib'
 import {showAuthenticationQuickPick} from '../quickpicks/show-authentication-quickpick'
-import {CustomAuthenticationSession, RedirectUriResponseQuery} from '../types'
-import {fileExists, getDataDir, readJsonFile} from '../utils'
+import {CustomAuthenticationSession, VercelRedirectUriResponseQuery} from '../types'
+import {fileExists, getDataDir, readJsonFile, isValidAuthJson} from '../utils'
 import {crypto} from '../utils/node'
-import {isValidAuthJson} from '../utils/validation'
 import {VercelApiClient} from '../vercel-api-client'
 import {CustomUriHandler} from './custom-uri-handler'
 
@@ -27,7 +26,7 @@ export class VercelAuthenticationProvider implements vscode.AuthenticationProvid
   public readonly providerLabel = 'Vercel'
 
   private readonly secretSessionKey = 'vercel-auth-session'
-  private readonly onAuthenticatedEventEmitter = new vscode.EventEmitter<RedirectUriResponseQuery>()
+  private readonly onAuthenticatedEventEmitter = new vscode.EventEmitter<VercelRedirectUriResponseQuery>()
   private readonly onDidChangeSessionsEventEmitter = new vscode.EventEmitter<CustomAuthenticationSessionChangeEvent>()
 
   private currentSession: Promise<CustomAuthenticationSession | undefined> | undefined
@@ -53,7 +52,7 @@ export class VercelAuthenticationProvider implements vscode.AuthenticationProvid
       customUriHandler.onUri(({path, query}) => {
         if (path !== '/authenticate') return
 
-        const {code, state, team_id} = query as Partial<RedirectUriResponseQuery>
+        const {code, state, team_id} = query as Partial<VercelRedirectUriResponseQuery>
         if (!code || !state) {
           const name = code ? 'state' : 'code'
           throw new Error(`Required property \`${name}\` is missing from the query.`)
@@ -171,7 +170,7 @@ export class VercelAuthenticationProvider implements vscode.AuthenticationProvid
     const loginUrl = `https://vercel.com/integrations/${process.env.INTEGRATION_ID}/new?state=${state}`
     await vscode.env.openExternal(vscode.Uri.parse(loginUrl))
 
-    const waitForRedirect = new Promise<RedirectUriResponseQuery>((resolve, reject) => {
+    const waitForRedirect = new Promise<VercelRedirectUriResponseQuery>((resolve, reject) => {
       this.disposables.push(
         this.onAuthenticatedEventEmitter.event((value) => {
           resolve(value)

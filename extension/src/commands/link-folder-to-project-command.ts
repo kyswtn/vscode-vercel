@@ -8,7 +8,7 @@ import {showTeamQuickPick} from '../quickpicks/show-team-quickpick'
 import {AuthenticationStateProvider} from '../state/authentication-state-provider'
 import {ProjectJson} from '../types'
 import {fileExists, vercelProjectMarkdownLink, writeFile} from '../utils'
-import {logAndShowErrorMessage} from '../utils/errors'
+import {logAndShowErrorMessage, showUnauthorizedErrorMessage} from '../utils/errors'
 import {VercelApiClient} from '../vercel-api-client'
 
 @Injectable()
@@ -16,7 +16,7 @@ export class LinkFolderToProjectCommand implements vscode.Disposable {
   private readonly disposable: vscode.Disposable
 
   constructor(
-    private readonly auth: AuthenticationStateProvider,
+    private readonly authState: AuthenticationStateProvider,
     private readonly vercelApi: VercelApiClient,
   ) {
     this.disposable = vscode.commands.registerCommand(CommandId.LinkFolderToProject, this.run, this)
@@ -27,8 +27,12 @@ export class LinkFolderToProjectCommand implements vscode.Disposable {
   }
 
   async run(folderUri: vscode.Uri) {
-    const currentSession = this.auth.currentSession
-    if (!currentSession) return
+    const currentSession = this.authState.currentSession
+    if (!currentSession) {
+      await showUnauthorizedErrorMessage()
+      return
+    }
+    const {accessToken} = currentSession
 
     const targetProjectJsonFileUri = folderUri.with({path: path.join(folderUri.path, projectJsonPath)})
     const alreadyLinked = await fileExists(targetProjectJsonFileUri)
@@ -38,7 +42,7 @@ export class LinkFolderToProjectCommand implements vscode.Disposable {
     }
 
     try {
-      const loadTeams = () => this.vercelApi.listTeams(currentSession.accessToken)
+      const loadTeams = () => this.vercelApi.listTeams(accessToken)
 
       let teamId = currentSession.teamId
       if (currentSession.scopes.includes('teams')) {
@@ -50,15 +54,15 @@ export class LinkFolderToProjectCommand implements vscode.Disposable {
 
       const loadProjects = () =>
         Promise.all([
-          this.detectProjectFromFolder(folderUri, currentSession.accessToken, teamId),
-          this.vercelApi.listProjects(currentSession.accessToken, teamId),
+          this.detectProjectFromFolder(folderUri, accessToken, teamId),
+          this.vercelApi.listProjects(accessToken, teamId),
         ])
 
       const [project, user] = await Promise.all([
         showProjectToLinkQuickPickItem(loadProjects),
         // If teamId is empty, we'll need to fetch user details to get default team ID. We'll do that
         // while waiting for the user to pick a team to improve perceived performance.
-        teamId === undefined ? this.vercelApi.getUser(currentSession.accessToken) : Promise.resolve(undefined),
+        teamId === undefined ? this.vercelApi.getUser(accessToken) : Promise.resolve(undefined),
       ])
       if (!project) return
 

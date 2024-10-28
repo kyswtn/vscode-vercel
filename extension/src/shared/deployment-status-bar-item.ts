@@ -30,9 +30,7 @@ export class DeploymentStatusBarItem implements vscode.Disposable {
           this.statusBarItem.show()
         }
       }),
-      this.deploymentsState.onWillChangeDeployments(async () => {
-        this.setLoading()
-        await this.deploymentsState.loadingPromise
+      this.deploymentsState.onDidChangeDeployments(() => {
         this.updateStatusBarItem()
       }),
       this.contextKeys.onDidSetContext((key) => {

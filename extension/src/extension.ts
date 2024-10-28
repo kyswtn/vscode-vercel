@@ -11,17 +11,17 @@ import {SaveOpenedFileCommand} from './commands/save-opened-file-command'
 import {SignInCommand} from './commands/sign-in-command'
 import {SignOutCommand} from './commands/sign-out-command'
 import {SwitchFocusedProjectCommand} from './commands/switch-focused-project-command'
-import {ExtensionConfiguration} from './extension-configuration'
 import {CustomDocumentLinkProvider} from './shared/custom-document-link-provider'
-import {FilesFileSystemProvider} from './shared/custom-file-system-provider'
+import {CustomFileSystemProvider} from './shared/custom-file-system-provider'
 import {CustomUriHandler} from './shared/custom-uri-handler'
 import {DeploymentStatusBarItem} from './shared/deployment-status-bar-item'
 import {VercelAuthenticationProvider} from './shared/vercel-authentication-provider'
 import {ViewFileDecorationProvider} from './shared/view-file-decoration-provider'
 import {AuthenticationStateProvider} from './state/authentication-state-provider'
-import {DeploymentFilesStateProvider} from './state/deployment-files-state-provider'
+import {DeploymentContentStateProvider} from './state/deployment-content-state-provider'
 import {DeploymentFiltersStateProvider} from './state/deployment-filters-state-provider'
 import {DeploymentsStateProvider} from './state/deployments-state-provider'
+import {ExtensionConfigStateProvider} from './state/extension-config-state-provider'
 import {FileWatchersStateProvider} from './state/file-watchers-state-provider'
 import {FoldersStateProvider} from './state/folders-state-provider'
 import {LinkedProjectsStateProvider} from './state/linked-projects-state-provider'
@@ -37,14 +37,14 @@ const extension = new Extension({
   entries: [
     BootstrapExtension,
     // Shared
-    VercelApiClient,
-    CustomUriHandler,
-    FilesFileSystemProvider,
     CustomDocumentLinkProvider,
-    ViewFileDecorationProvider,
-    SaveOpenedFileCommand,
+    CustomUriHandler,
+    ExtensionConfigStateProvider,
+    CustomFileSystemProvider,
     PullEnvsCommand,
-    ExtensionConfiguration,
+    SaveOpenedFileCommand,
+    VercelApiClient,
+    ViewFileDecorationProvider,
     // Authentication
     VercelAuthenticationProvider,
     AuthenticationStateProvider,
@@ -68,7 +68,7 @@ const extension = new Extension({
     DeploymentsTreeView,
     DeploymentStatusBarItem,
     // Deployment Files
-    DeploymentFilesStateProvider,
+    DeploymentContentStateProvider,
     DeploymentFilesTreeDataProvider,
     DeploymentFilesTreeView,
     // Deployment Checks

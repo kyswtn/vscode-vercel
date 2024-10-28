@@ -48,7 +48,7 @@ export type GitCommit = {
 
 // Don't type unless used. Type only enough to be used.
 
-export type RedirectUriResponseQuery = {
+export type VercelRedirectUriResponseQuery = {
   code: string
   state: string
   team_id?: string | undefined
