@@ -7,8 +7,9 @@ import {diffArrays} from '../utils'
 export class ExtensionConfigStateProvider implements vscode.Disposable {
   private _filesExclude = this.getAllFilesExclude()
   private _logsAutoRefresh = this.getExtensionConfig(ConfigId.LogsAutoRefresh, true)
+  private _checksAutoRefresh = this.getExtensionConfig(ConfigId.ChecksAutoRefresh, true)
   private _deploymentsAutoRefresh = this.getExtensionConfig(ConfigId.DeploymentsAutoRefresh, true)
-  private _deploymentsAutoRefreshPeriod = this.getExtensionConfig(ConfigId.DeploymentsAutoRefreshPeriod, 6)
+  private _deploymentsAutoRefreshPeriod = this.getExtensionConfig(ConfigId.DeploymentsAutoRefreshPeriod, 30)
   private readonly onDidChangeConfigEventEmitter = new vscode.EventEmitter<ConfigId>()
   private readonly disposable: vscode.Disposable
 
@@ -33,6 +34,15 @@ export class ExtensionConfigStateProvider implements vscode.Disposable {
 
         if (this._logsAutoRefresh !== oldValue) {
           this.onDidChangeConfigEventEmitter.fire(ConfigId.LogsAutoRefresh)
+        }
+      }
+
+      if (event.affectsConfiguration(ConfigId.ChecksAutoRefresh)) {
+        const oldValue = this._logsAutoRefresh
+        this._checksAutoRefresh = this.getExtensionConfig(ConfigId.ChecksAutoRefresh, true)
+
+        if (this._checksAutoRefresh !== oldValue) {
+          this.onDidChangeConfigEventEmitter.fire(ConfigId.ChecksAutoRefresh)
         }
       }
 
@@ -70,6 +80,10 @@ export class ExtensionConfigStateProvider implements vscode.Disposable {
 
   get logsAutoRefresh() {
     return this._logsAutoRefresh
+  }
+
+  get checksAutoRefresh() {
+    return this._checksAutoRefresh
   }
 
   get deploymentsAutoRefresh() {

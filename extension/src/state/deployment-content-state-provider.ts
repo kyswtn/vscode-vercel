@@ -3,6 +3,7 @@ import * as vscode from 'vscode'
 import {ContextId, finishedDeploymentStates} from '../constants'
 import {ContextKeys, Injectable} from '../lib'
 import {VercelDeployment} from '../models/vercel-deployment'
+import {VercelDeploymentCheck} from '../types'
 import {formatTimestamp, isLogFilePath} from '../utils'
 import {VercelApiClient} from '../vercel-api-client'
 import {AuthenticationStateProvider} from './authentication-state-provider'
@@ -26,8 +27,9 @@ export type GetFileOptions = {
 @Injectable()
 export class DeploymentContentStateProvider implements vscode.Disposable {
   // We only have one sidebar, so files for only one deployment can be displayed at a time.
-  // Everytime this gets mutated, we'll reset the cache, otherwise the cache will never be GC-ed.
+  // Everytime this gets mutated, we'll reset the caches, otherwise the cache will never be GC-ed.
   private _selectedDeployment: VercelDeployment | undefined
+  private _deploymentChecks: VercelDeploymentCheck[] | undefined
   private readonly onDidChangeSelectedDeploymentEventEmitter = new vscode.EventEmitter<void>()
   private readonly files: Map<string, FileContent> = new Map()
   private readonly disposable: vscode.Disposable
@@ -39,8 +41,21 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
     private readonly vercelApi: VercelApiClient,
   ) {
     this.disposable = vscode.Disposable.from(
+      this.deploymentsState.onDidChangeDeployments(async () => {
+        if (!this._selectedDeployment) return
+        const {id, project} = this._selectedDeployment
+
+        // This will make sure selected deployment and it's content (logs, files, checks) are updated
+        // even if a file change or filter has removed it from the sidebar.
+        const deployment = await this.deploymentsState.getDeploymentOrFetch(id, project.id, project.teamId)
+        if (!deployment) return
+
+        this._selectedDeployment = deployment
+        this.loadDeploymentChecks()
+      }),
       this.onDidChangeSelectedDeploymentEventEmitter.event(() => {
         this.files.clear()
+        this.loadDeploymentChecks()
       }),
     )
   }
@@ -67,6 +82,30 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
 
   get onDidChangeSelectedDeployment() {
     return this.onDidChangeSelectedDeploymentEventEmitter.event
+  }
+
+  get deploymentChecks() {
+    return this._deploymentChecks ?? []
+  }
+
+  async loadDeploymentChecks() {
+    const currentSession = this.authState.currentSession
+
+    if (!this._selectedDeployment || !currentSession) {
+      this._deploymentChecks = undefined
+      return
+    }
+
+    const deployment = this._selectedDeployment
+
+    // If checks are cached already and deployment is marked done, no need to refresh checks.
+    if (typeof this._deploymentChecks !== 'undefined' && finishedDeploymentStates.includes(deployment.state)) return
+
+    this._deploymentChecks = await this.vercelApi.listDeploymentChecks(
+      deployment.id,
+      currentSession.accessToken,
+      deployment.project.teamId,
+    )
   }
 
   async getFile(options: GetFileOptions) {

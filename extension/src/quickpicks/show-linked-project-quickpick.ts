@@ -25,6 +25,6 @@ function linkedProjectToQuickPickItem(project: LinkedProject): LinkedProjectQuic
     project,
     iconPath: new vscode.ThemeIcon('custom-icons-dashed-triangle' satisfies CustomIcon),
     label: project.remote.name,
-    description: [relativePath, ms(project.remote.latestUpdatedMsAgo)].filter((item) => item).join(' · '),
+    description: [relativePath, ms(project.remote.lastUpdatedMsAgo)].filter((item) => item).join(' · '),
   }
 }

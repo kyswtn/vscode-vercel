@@ -4,7 +4,7 @@ import type {
   PlainVercelDeployment,
   PlainVercelDeploymentListed,
   PlainVercelProject,
-  VercelCheck,
+  VercelDeploymentCheck,
   VercelDeploymentEvent,
   VercelFile,
   VercelTeam,
@@ -284,6 +284,6 @@ declare namespace VercelApiClient {
   }
 
   type ListDeploymentChecksResponse = {
-    checks: VercelCheck[]
+    checks: VercelDeploymentCheck[]
   }
 }

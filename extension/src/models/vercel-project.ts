@@ -24,7 +24,7 @@ export class VercelProject {
     }
   }
 
-  get latestUpdatedMsAgo() {
+  get lastUpdatedMsAgo() {
     return new Date().getTime() - (this.project.updatedAt ?? this.project.createdAt)
   }
 

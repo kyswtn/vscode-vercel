@@ -78,7 +78,7 @@ const extension = new Extension({
 })
 
 // Uncomment this for DEMO mode with fake data.
-// import {DemoVercelApiClient} from './demo/demo-vercel-api-client'
+// import {DemoVercelApiClient} from './_demo/demo-vercel-api-client'
 // extension.container.override(VercelApiClient, new DemoVercelApiClient())
 
 export async function activate(context: vscode.ExtensionContext) {
