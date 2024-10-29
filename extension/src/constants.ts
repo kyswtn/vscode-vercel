@@ -2,6 +2,7 @@ export const extensionPrefix = 'vercel'
 
 export const enum FileSystemProviderScheme {
   Files = 'vscode-vercel-files',
+  View = 'vscode-vercel-view',
 }
 
 export const enum ContextId {
@@ -43,6 +44,7 @@ export const enum CommandId {
 export const enum ConfigId {
   FilesExclude = 'vercel.files.exclude',
   LogsAutoRefresh = 'vercel.logs.autorefresh',
+  ChecksAutoRefresh = 'vercel.checks.autorefresh',
   DeploymentsAutoRefresh = 'vercel.deployments.autorefresh',
   DeploymentsAutoRefreshPeriod = 'vercel.deployments.autorefreshPeriod',
 }
@@ -55,9 +57,9 @@ export const enum TreeId {
 }
 
 export const enum TreeItemContextValue {
+  Check = 'vercel:check',
   Project = 'vercel:project',
   Deployment = 'vercel:deployment',
-  DeploymentFile = 'vercel:deploymentFile',
 }
 
 export const enum FilePattern {
@@ -101,5 +103,5 @@ export const enum VercelDeploymentEnvironment {
 export const finishedDeploymentStates = [
   VercelDeploymentState.Ready,
   VercelDeploymentState.Error,
-  VercelDeploymentState.Canceled as VercelDeploymentState | undefined,
-]
+  VercelDeploymentState.Canceled,
+] as (VercelDeploymentState | undefined)[]

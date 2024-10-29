@@ -21,6 +21,6 @@ export function vercelProjectToQuickPickItem(project: VercelProject): VercelProj
     project,
     iconPath: new vscode.ThemeIcon('custom-icons-dashed-triangle' satisfies CustomIcon),
     label: project.name,
-    description: [ms(project.latestUpdatedMsAgo), project.productionAlias].filter((item) => item).join(' · '),
+    description: [ms(project.lastUpdatedMsAgo), project.productionAlias].filter((item) => item).join(' · '),
   }
 }

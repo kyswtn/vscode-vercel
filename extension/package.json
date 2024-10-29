@@ -65,6 +65,11 @@
           "type": "boolean",
           "default": true
         },
+        "vercel.checks.autorefresh": {
+          "description": "When set to true, deployment checks will automatically be fetched and updated every few seconds.",
+          "type": "boolean",
+          "default": true
+        },
         "vercel.deployments.autorefresh": {
           "description": "When set to true, deployments will automatically be fetched and updated every few seconds.",
           "type": "boolean",
@@ -73,7 +78,7 @@
         "vercel.deployments.autorefreshPeriod": {
           "description": "Duration in seconds between each automatic deployment refresh, when #vercel.deployments.autorefresh# is enabled.",
           "type": "number",
-          "default": 6
+          "default": 30
         }
       }
     },

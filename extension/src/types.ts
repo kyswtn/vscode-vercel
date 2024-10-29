@@ -227,17 +227,17 @@ export type VercelFile =
       name: string
     }
 
-export type VercelCheckStatus = 'registered' | 'running' | 'completed'
-export type VercelCheckConclusion = 'canceled' | 'failed' | 'neutral' | 'skipped' | 'succeeded' | 'stale'
+export type VercelDeploymentCheckStatus = 'registered' | 'running' | 'completed'
+export type VercelDeploymentCheckConclusion = 'canceled' | 'failed' | 'neutral' | 'skipped' | 'succeeded' | 'stale'
 
-export type VercelCheck = {
+export type VercelDeploymentCheck = {
   id: string
   integrationId: string
   name: string
   createdAt: number
   updatedAt: number
-  status: VercelCheckStatus
-  conclusion?: VercelCheckConclusion
+  status: VercelDeploymentCheckStatus
+  conclusion?: VercelDeploymentCheckConclusion
 }
 
 // #endregion

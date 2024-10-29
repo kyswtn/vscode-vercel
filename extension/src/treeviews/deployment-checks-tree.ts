@@ -1,15 +1,97 @@
+import ms from 'ms'
 import * as vscode from 'vscode'
-import {TreeId} from '../constants'
+import {ConfigId, FileSystemProviderScheme, TreeId, TreeItemContextValue} from '../constants'
 import {Injectable} from '../lib'
+import {DeploymentContentStateProvider} from '../state/deployment-content-state-provider'
+import {ExtensionConfigStateProvider} from '../state/extension-config-state-provider'
+import {CustomIcon, VercelDeploymentCheck, VercelDeploymentCheckConclusion, VercelDeploymentCheckStatus} from '../types'
 
-// TODO: Add deployment checks.
+const checkStatusIcons = {
+  registered: 'issue-draft',
+  running: 'wrench',
+  completed: 'custom-icons-blank' satisfies CustomIcon,
+
+  canceled: 'close',
+  failed: 'error',
+  neutral: 'issue-draft',
+  skipped: 'issue-draft',
+  succeeded: 'pass',
+  stale: 'watch',
+} satisfies Record<VercelDeploymentCheckStatus | VercelDeploymentCheckConclusion, string>
+
+const checkIconColors = {
+  registered: 'testing.iconUnset',
+  running: 'inputValidation.warningBorder',
+  completed: 'testing.iconUnset',
+
+  canceled: 'testing.iconSkipped',
+  failed: 'testing.iconErrored',
+  neutral: 'testing.iconUnset',
+  skipped: 'testing.iconSkipped',
+  succeeded: 'testing.iconPassed',
+  stale: 'testing.iconQueued',
+} satisfies Record<VercelDeploymentCheckStatus | VercelDeploymentCheckConclusion, string>
+
+class DeploymentCheckTreeItem extends vscode.TreeItem {
+  override contextValue = TreeItemContextValue.Check
+  private readonly checkStatus: VercelDeploymentCheckStatus | VercelDeploymentCheckConclusion
+
+  constructor(private readonly check: VercelDeploymentCheck) {
+    super(check.name, vscode.TreeItemCollapsibleState.None)
+    this.checkStatus = check.conclusion ?? check.status
+
+    this.id = check.id
+    this.iconPath = this.getIcon()
+    this.resourceUri = vscode.Uri.parse(`${FileSystemProviderScheme.View}://checks/${check.id}`)
+    this.description = this.checkStatus.toUpperCase()
+    this.tooltip = this.getTooltip()
+  }
+
+  private getIcon() {
+    return new vscode.ThemeIcon(
+      checkStatusIcons[this.checkStatus],
+      new vscode.ThemeColor(checkIconColors[this.checkStatus]),
+    )
+  }
+
+  private getTooltip() {
+    const tooltip = new vscode.MarkdownString('', true)
+    const iconId = (this.iconPath as vscode.ThemeIcon).id
+
+    const {name, createdAt, updatedAt} = this.check
+    const lastUpdatedMsAgo = new Date().getTime() - (updatedAt ?? createdAt)
+
+    tooltip.appendMarkdown(`$(${iconId}) ${name}\n\n---\n\n`)
+    tooltip.appendMarkdown(`$(info) ${this.checkStatus} ${ms(lastUpdatedMsAgo)} ago\n\n`)
+
+    return tooltip
+  }
+}
 
 @Injectable()
 export class DeploymentChecksTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem>, vscode.Disposable {
+  private refreshInterval: ReturnType<typeof setInterval> | undefined
   private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter<vscode.TreeItem | undefined>()
+  private readonly disposable: vscode.Disposable
+
+  constructor(
+    private readonly deploymentContent: DeploymentContentStateProvider,
+    private readonly extensionConfig: ExtensionConfigStateProvider,
+  ) {
+    this.configureRefreshInterval()
+    this.disposable = vscode.Disposable.from(
+      this.extensionConfig.onDidChangeConfig((configId) => {
+        if (configId === ConfigId.ChecksAutoRefresh) {
+          this.configureRefreshInterval()
+        }
+      }),
+    )
+  }
 
   dispose() {
+    this.disposable.dispose()
     this.onDidChangeTreeDataEventEmitter.dispose()
+    clearInterval(this.refreshInterval)
   }
 
   get onDidChangeTreeData() {
@@ -21,11 +103,21 @@ export class DeploymentChecksTreeDataProvider implements vscode.TreeDataProvider
   }
 
   async getChildren(): Promise<vscode.TreeItem[]> {
-    return []
+    return this.deploymentContent.deploymentChecks.map((check) => new DeploymentCheckTreeItem(check))
   }
 
   refreshRoot() {
     this.onDidChangeTreeDataEventEmitter.fire(undefined)
+  }
+
+  private configureRefreshInterval() {
+    clearInterval(this.refreshInterval)
+    if (!this.extensionConfig.checksAutoRefresh) return
+
+    this.refreshInterval = setInterval(() => {
+      this.deploymentContent.loadDeploymentChecks()
+      this.refreshRoot()
+    }, 6 * 1000) // Refresh checks files 10 times a minute.
   }
 }
 

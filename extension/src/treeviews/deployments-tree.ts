@@ -42,7 +42,7 @@ export class DeploymentTreeItem extends vscode.TreeItem {
     super(deployment.data.name, vscode.TreeItemCollapsibleState.Collapsed)
 
     this.id = deployment.id
-    this.resourceUri = vscode.Uri.parse(`vscode-vercel-view://deployments/${deployment.id}`)
+    this.resourceUri = vscode.Uri.parse(`${FileSystemProviderScheme.View}://deployments/${deployment.id}`)
     this.iconPath = this.getIcon()
     this.description = this.getDescription()
     this.tooltip = this.getTooltip()

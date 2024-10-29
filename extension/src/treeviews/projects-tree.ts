@@ -25,7 +25,7 @@ export class ProjectTreeItem extends vscode.TreeItem {
   private getDescription() {
     const uriPath = vscode.workspace.asRelativePath(this.project.local.uri)
     const relativePath = !path.isAbsolute(uriPath) ? uriPath : undefined
-    const timeAgo = ms(this.project.remote.latestUpdatedMsAgo)
+    const timeAgo = ms(this.project.remote.lastUpdatedMsAgo)
 
     return [relativePath, timeAgo].filter((item) => item).join(' · ')
   }
@@ -53,7 +53,7 @@ export class ProjectTreeItem extends vscode.TreeItem {
       tooltip.appendMarkdown('---\n\n')
     }
 
-    tooltip.appendText(`${ms(project.latestUpdatedMsAgo)} ago`)
+    tooltip.appendText(`${ms(project.lastUpdatedMsAgo)} ago`)
 
     if (branch) {
       tooltip.appendMarkdown(` from ${withMarkdownUrl(`$(git-branch) ${branch.name}`, branch.url)}`)
