@@ -41,7 +41,6 @@ const extension = new Extension({
     CustomUriHandler,
     ExtensionConfigStateProvider,
     CustomFileSystemProvider,
-    PullEnvsCommand,
     SaveOpenedFileCommand,
     VercelApiClient,
     ViewFileDecorationProvider,
@@ -61,6 +60,7 @@ const extension = new Extension({
     SwitchFocusedProjectCommand,
     LinkFolderToProjectCommand,
     LinkWorkspaceToProjectCommand,
+    PullEnvsCommand,
     // Deployments
     DeploymentsStateProvider,
     DeploymentFiltersStateProvider,

@@ -36,9 +36,11 @@ export const enum CommandId {
   FilterDeployments = 'vercel.deployments.filter',
   ResetFilters = 'vercel.deployments.resetFilters',
   FilterDeploymentsFilled = 'vercel.deployments.filterFilled',
+  ShowDeploymentActions = 'vercel.deployments.showActions',
   // Deployment Files
   RefreshDeploymentFiles = 'vercel.deploymentFiles.refresh',
-  SelectDeploymentForFiles = 'vercel:selectDeploymentForFiles',
+  // TODO: This is not just for files? Now that we have checks. Rename?
+  SelectDeploymentForFiles = 'vercel.selectDeploymentForFiles',
 }
 
 export const enum ConfigId {

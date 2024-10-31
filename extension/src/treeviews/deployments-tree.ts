@@ -16,6 +16,12 @@ import {DeploymentsStateProvider} from '../state/deployments-state-provider'
 import {ExtensionConfigStateProvider} from '../state/extension-config-state-provider'
 import {CustomIcon, GitBranch, GitCommit} from '../types'
 import {capitalize, withMarkdownUrl} from '../utils'
+import {
+  DeploymentQuickPickAction,
+  showDeploymentActionsQuickPick,
+} from '../quickpicks/show-deployment-actions-quickpick'
+import {VercelApiClient} from '../vercel-api-client'
+import {AuthenticationStateProvider} from '../state/authentication-state-provider'
 
 const deploymentStatusIcons = {
   INITIALIZING: 'issue-draft',
@@ -278,8 +284,10 @@ export class DeploymentsTreeView implements vscode.Disposable {
 
   constructor(
     treeDataProvider: DeploymentsTreeDataProvider,
+    private readonly authState: AuthenticationStateProvider,
     private readonly deploymentsState: DeploymentsStateProvider,
     private readonly filtersState: DeploymentFiltersStateProvider,
+    private readonly vercelApi: VercelApiClient,
   ) {
     this.treeView = vscode.window.createTreeView(TreeId.Deployments, {
       treeDataProvider,
@@ -291,6 +299,7 @@ export class DeploymentsTreeView implements vscode.Disposable {
       vscode.commands.registerCommand(CommandId.FilterDeployments, this.filterDeployments, this),
       vscode.commands.registerCommand(CommandId.FilterDeploymentsFilled, this.filterDeployments, this),
       vscode.commands.registerCommand(CommandId.ResetFilters, this.resetFilters, this),
+      vscode.commands.registerCommand(CommandId.ShowDeploymentActions, this.showDeploymentActions, this),
     )
   }
 
@@ -299,8 +308,8 @@ export class DeploymentsTreeView implements vscode.Disposable {
     this.disposable.dispose()
   }
 
-  private refreshDeployments() {
-    this.deploymentsState.loadDeployments()
+  private async refreshDeployments() {
+    await this.deploymentsState.loadDeployments()
   }
 
   private async filterDeployments() {
@@ -312,5 +321,68 @@ export class DeploymentsTreeView implements vscode.Disposable {
 
   private resetFilters() {
     this.filtersState.resetFilters()
+  }
+
+  private async showDeploymentActions(treeItem?: DeploymentTreeItem) {
+    const deployment = treeItem?.deployment
+    if (!deployment) return
+
+    // Returns actions that can't be handled by the quickpick alone.
+    const action = await showDeploymentActionsQuickPick(deployment)
+    if (!action) return
+
+    const currentSession = this.authState.currentSession
+    if (!currentSession) return
+    const {accessToken} = currentSession
+
+    switch (action as DeploymentQuickPickAction) {
+      case DeploymentQuickPickAction.Promote: {
+        if (deployment.target === 'production') {
+          await this.vercelApi.promote(
+            /* wrap lines */
+            deployment.id,
+            deployment.project.id,
+            accessToken,
+            deployment.project.teamId,
+          )
+        } else {
+          const proceed = await vscode.window.showInformationMessage(
+            'This deployment is not a production deployment and cannot be directly promoted. A new deployment will be built using your production environment.',
+            'Proceed',
+          )
+          if (proceed) {
+            await this.vercelApi.promoteByCreation(
+              deployment.id,
+              deployment.project.name,
+              accessToken,
+              deployment.project.teamId,
+            )
+          }
+        }
+        await this.refreshDeployments()
+        break
+      }
+      case DeploymentQuickPickAction.Redeploy: {
+        await this.vercelApi.redeploy(
+          deployment.id,
+          deployment.name,
+          deployment.target as string,
+          accessToken,
+          deployment.project.teamId,
+        )
+        await this.refreshDeployments()
+        break
+      }
+      case DeploymentQuickPickAction.Rollback: {
+        await this.vercelApi.rollbackDeployment(
+          deployment.id,
+          deployment.project.id,
+          accessToken,
+          deployment.project.teamId,
+        )
+        await this.refreshDeployments()
+        break
+      }
+    }
   }
 }

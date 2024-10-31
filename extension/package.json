@@ -78,7 +78,7 @@
         "vercel.deployments.autorefreshPeriod": {
           "description": "Duration in seconds between each automatic deployment refresh, when #vercel.deployments.autorefresh# is enabled.",
           "type": "number",
-          "default": 30
+          "default": 20
         }
       }
     },
@@ -178,6 +178,13 @@
         "command": "vercel.deploymentFiles.refresh",
         "title": "Refresh Files",
         "icon": "$(extensions-refresh)"
+      },
+      {
+        "category": "Vercel",
+        "command": "vercel.deployments.showActions",
+        "title": "Show Deployment Actions",
+        "shortTitle": "Show Actions",
+        "icon": "$(ellipsis)"
       }
     ],
     "viewsContainers": {
@@ -273,6 +280,10 @@
           "when": "false"
         },
         {
+          "command": "vercel.deployments.showActions",
+          "when": "false"
+        },
+        {
           "command": "vercel.deploymentFiles.refresh",
           "when": "false"
         }
@@ -316,6 +327,11 @@
           "when": "view == vercel-projects && viewItem =~ /vercel:project/",
           "group": "inline@2",
           "alt": "vercel.projects.copyUrl"
+        },
+        {
+          "command": "vercel.deployments.showActions",
+          "when": "view == vercel-deployments && viewItem =~ /vercel:deployment/",
+          "group": "inline@1"
         }
       ],
       "explorer/context": [
