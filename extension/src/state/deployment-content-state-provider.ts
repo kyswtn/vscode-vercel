@@ -30,7 +30,7 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
   // Everytime this gets mutated, we'll reset the caches, otherwise the cache will never be GC-ed.
   private _selectedDeployment: VercelDeployment | undefined
   private _deploymentChecks: VercelDeploymentCheck[] | undefined
-  private readonly onDidChangeSelectedDeploymentEventEmitter = new vscode.EventEmitter<void>()
+  private readonly onDidChangeSelectedDeploymentEventEmitter = new vscode.EventEmitter<string>()
   private readonly files: Map<string, FileContent> = new Map()
   private readonly disposable: vscode.Disposable
 
@@ -51,11 +51,11 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
         if (!deployment) return
 
         this._selectedDeployment = deployment
-        this.loadDeploymentChecks()
+        this.loadDeploymentChecksInBackground()
       }),
       this.onDidChangeSelectedDeploymentEventEmitter.event(() => {
         this.files.clear()
-        this.loadDeploymentChecks()
+        this.loadDeploymentChecksInBackground()
       }),
     )
   }
@@ -74,7 +74,7 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
     this._selectedDeployment = deployment
 
     if (oldSelectedDeployment?.id !== deployment?.id) {
-      this.onDidChangeSelectedDeploymentEventEmitter.fire()
+      this.onDidChangeSelectedDeploymentEventEmitter.fire(deployment.id)
     }
 
     await this.contextKeys.set(ContextId.SelectedDeploymentIdForFiles, deployment.hashPath)
@@ -88,7 +88,7 @@ export class DeploymentContentStateProvider implements vscode.Disposable {
     return this._deploymentChecks ?? []
   }
 
-  async loadDeploymentChecks() {
+  async loadDeploymentChecksInBackground() {
     const currentSession = this.authState.currentSession
 
     if (!this._selectedDeployment || !currentSession) {

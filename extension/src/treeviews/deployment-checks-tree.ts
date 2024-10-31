@@ -80,6 +80,15 @@ export class DeploymentChecksTreeDataProvider implements vscode.TreeDataProvider
   ) {
     this.configureRefreshInterval()
     this.disposable = vscode.Disposable.from(
+      this.deploymentContent.onDidChangeSelectedDeployment((newDeploymentId) => {
+        ;(async () => {
+          if (newDeploymentId) {
+            await this.deploymentContent.loadDeploymentChecksInBackground()
+            this.refreshRoot()
+          }
+          this.configureRefreshInterval()
+        })()
+      }),
       this.extensionConfig.onDidChangeConfig((configId) => {
         if (configId === ConfigId.ChecksAutoRefresh) {
           this.configureRefreshInterval()
@@ -112,12 +121,15 @@ export class DeploymentChecksTreeDataProvider implements vscode.TreeDataProvider
 
   private configureRefreshInterval() {
     clearInterval(this.refreshInterval)
-    if (!this.extensionConfig.checksAutoRefresh) return
+    this.refreshInterval = undefined
+    if (!this.extensionConfig.checksAutoRefresh || !this.deploymentContent.selectedDeployment) return
 
     this.refreshInterval = setInterval(() => {
-      this.deploymentContent.loadDeploymentChecks()
-      this.refreshRoot()
-    }, 6 * 1000) // Refresh checks files 10 times a minute.
+      ;(async () => {
+        await this.deploymentContent.loadDeploymentChecksInBackground()
+        this.refreshRoot()
+      })()
+    }, 6 * 1000) // Refresh checks 10 times a minute.
   }
 }
 

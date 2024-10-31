@@ -177,6 +177,79 @@ export class VercelApiClient {
     return json.checks ?? []
   }
 
+  async rollbackDeployment(deploymentId: string, projectId: string, accessToken: string, teamId?: string) {
+    await this.doFetch({
+      method: 'POST',
+      path: `/v9/projects/${projectId}/rollback/${deploymentId}`,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: '{}',
+      accessToken,
+      teamId,
+    })
+  }
+
+  async redeploy(
+    deploymentId: string,
+    deploymentName: string,
+    deploymentTarget: string | undefined,
+    accessToken: string,
+    teamId?: string,
+  ) {
+    const deployment = await this.doFetch<PlainVercelDeployment>({
+      method: 'POST',
+      path: '/v13/deployments?forceNew=1',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify({
+        deploymentId: deploymentId,
+        meta: {
+          action: 'redeploy',
+        },
+        name: deploymentName,
+        target: deploymentTarget ?? undefined,
+      }),
+      accessToken,
+      teamId,
+    })
+    return deployment
+  }
+
+  async promoteByCreation(deploymentId: string, projectName: string, accessToken: string, teamId?: string) {
+    await this.doFetch({
+      method: 'POST',
+      path: '/v13/deployments',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify({
+        deploymentId: deploymentId,
+        name: projectName,
+        target: 'production',
+        meta: {
+          action: 'promote',
+        },
+      }),
+      accessToken,
+      teamId,
+    })
+  }
+
+  async promote(deploymentId: string, projectId: string, accessToken: string, teamId?: string) {
+    await this.doFetch({
+      method: 'POST',
+      path: `/v10/projects/${projectId}/promote/${deploymentId}`,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: '{}',
+      accessToken,
+      teamId,
+    })
+  }
+
   private async doFetch<T, K extends boolean = false>(
     params: FetchWrappedParams<K>,
   ): Promise<K extends true ? ArrayBuffer : T> {
