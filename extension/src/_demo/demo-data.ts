@@ -14,26 +14,26 @@ const daysAgo = (d: number) => new Date(new Date().setDate(today.getDate() - d))
 export default {
   accessToken: 'demo-access-token',
   user: {
-    id: 'demo-user-id',
+    id: 'demo_user_id',
     username: 'joshua',
     version: 'northstar' as const,
-    defaultTeamId: 'joshuas-projects-team-id',
+    defaultTeamId: 'joshuas_projects_team_id',
   },
   teams: [
     {
-      id: 'acme-corp-team-id',
+      id: 'acme_corp_team_id',
       name: 'ACME Corp',
     },
     {
-      id: 'joshuas-projects-team-id',
+      id: 'joshuas_projects_team_id',
       name: "Joshua's Projects",
     },
   ],
   projects: [
     {
-      id: 'demo-project-id',
+      id: 'demo_project_id',
       name: 'acme-store',
-      accountId: 'acme-corp-team-id',
+      accountId: 'acme_corp_team_id',
       createdAt: daysAgo(11),
       alias: [
         {
@@ -66,9 +66,9 @@ fix: center buttons and rename variables
       ],
     },
     {
-      id: 'demo-project-id-2',
+      id: 'demo_project_id_2',
       name: 'acme-dashboard',
-      accountId: 'acme-corp-team-id',
+      accountId: 'acme_corp_team_id',
       createdAt: daysAgo(30),
       alias: [
         {
@@ -86,9 +86,9 @@ fix: center buttons and rename variables
       },
     },
     {
-      id: 'demo-project-id-3',
+      id: 'demo_project_id_3',
       name: 'ship-with-acme',
-      accountId: 'acme-corp-team-id',
+      accountId: 'acme_corp_team_id',
       createdAt: daysAgo(47),
       alias: [
         {
@@ -106,9 +106,9 @@ fix: center buttons and rename variables
       },
     },
     {
-      id: 'demo-project-id-4',
+      id: 'demo_project_id_4',
       name: 'conf-2023',
-      accountId: 'acme-corp-team-id',
+      accountId: 'acme_corp_team_id',
       createdAt: daysAgo(365),
       alias: [
         {
@@ -118,9 +118,9 @@ fix: center buttons and rename variables
       ],
     },
     {
-      id: 'demo-project-id-5',
+      id: 'demo_project_id_5',
       name: 'acme-japan',
-      accountId: 'acme-corp-team-id',
+      accountId: 'acme_corp_team_id',
       createdAt: daysAgo(281),
       alias: [
         {
@@ -130,9 +130,9 @@ fix: center buttons and rename variables
       ],
     },
     {
-      id: 'demo-project-id-6',
+      id: 'demo_project_id_6',
       name: 'joshua-dev',
-      accountId: 'joshuas-projects-team-id',
+      accountId: 'joshuas_projects_team_id',
       createdAt: daysAgo(100),
       alias: [
         {
@@ -142,9 +142,9 @@ fix: center buttons and rename variables
       ],
     },
     {
-      id: 'demo-project-id-7',
+      id: 'demo_project_id_7',
       name: 'blog-joshua-dev',
-      accountId: 'joshuas-projects-team-id',
+      accountId: 'joshuas_projects_team_id',
       createdAt: daysAgo(47),
       alias: [
         {
@@ -156,7 +156,7 @@ fix: center buttons and rename variables
   ] satisfies PlainVercelProject[],
   deployments: [
     {
-      uid: 'demo-deployment-id',
+      uid: 'demo_deployment_id',
       name: 'acme-store',
       createdAt: minsAgo(1),
       state: VercelDeploymentState.Building,
@@ -174,7 +174,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-2',
+      uid: 'demo_deployment_id_2',
       name: 'acme-store',
       createdAt: minsAgo(20),
       state: VercelDeploymentState.Error,
@@ -192,7 +192,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-3',
+      uid: 'demo_deployment_id_3',
       name: 'acme-store',
       createdAt: minsAgo(45),
       state: VercelDeploymentState.Ready,
@@ -210,7 +210,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-4',
+      uid: 'demo_deployment_id_4',
       name: 'acme-store',
       createdAt: minsAgo(200),
       state: VercelDeploymentState.Canceled,
@@ -228,7 +228,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-5',
+      uid: 'demo_deployment_id_5',
       name: 'acme-store',
       createdAt: minsAgo(300),
       state: VercelDeploymentState.Ready,
@@ -246,7 +246,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-6',
+      uid: 'demo_deployment_id_6',
       name: 'acme-store',
       createdAt: minsAgo(5),
       state: VercelDeploymentState.Queued,
@@ -264,7 +264,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-7',
+      uid: 'demo_deployment_id_7',
       name: 'acme-japan-web',
       createdAt: minsAgo(2),
       state: VercelDeploymentState.Ready,
@@ -282,7 +282,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-8',
+      uid: 'demo_deployment_id_8',
       name: 'acme-japan-web',
       createdAt: minsAgo(13),
       state: VercelDeploymentState.Ready,
@@ -300,7 +300,7 @@ fix: center buttons and rename variables
       },
     },
     {
-      uid: 'demo-deployment-id-9',
+      uid: 'demo_deployment_id_9',
       name: 'acme-japan-api',
       createdAt: daysAgo(11),
       state: VercelDeploymentState.Ready,
@@ -815,6 +815,7 @@ fix: center buttons and rename variables
     <link rel="icon" type="image/svg+xml" href="./favicon.ico" />
     <title>Acme Store</title>
     <meta name="description" content="Acme Store" />
+    <link rel="stylesheet" type="text/css" href="/globals.css" />
   </head>
   <body>
     <div id="root"></div>
