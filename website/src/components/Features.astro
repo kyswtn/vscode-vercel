@@ -1,0 +1,132 @@
+---
+import Showcase from './Showcase.astro'
+---
+
+<div class="w-full slide-up-fade-in-staggered" style="--stagger-continue: 11">
+  <h2 class="text-4xl sm:text-center mb-2.5">
+    <span>Features</span>
+    <div class="inline-block text-2xl align-middle ml-1.5">
+      <!-- This weird alignment is intentional. -->
+      <div class="i-radix-icons-radiobutton text-red-11 inline-block align-top"></div>
+      <div class="i-radix-icons-vercel-logo text-blue-11 inline-block align-middle"></div>
+      <div class="i-radix-icons-image text-green-11 inline-block align-top"></div>
+    </div>
+  </h2>
+  <p class="text-gray-11 sm:text-center">
+    The missing editor integration to complete your Vercel development experience.
+  </p>
+  <div
+    class="w-[calc(100%+2.5rem)] sm:w-full border-0 sm:border-1 -ml-5 sm:ml-0
+  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-6 border-gray-6 mt-10"
+  >
+    <div class="p-5 bg-gray-1 flex flex-col justify-between">
+      <div class="feature-showcase w-full h-60 overflow-hidden select-none">
+        <Showcase section="deployments" />
+      </div>
+
+      <div>
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-radiobutton inline-block align-middle mr-1.5"></div>
+          <span>Monitor Deployments</span>
+        </h3>
+        <p class="text-xl tracking-tight">
+          Don't miss out on latest deployments from your team. Promote or rollback as you need to.
+        </p>
+      </div>
+    </div>
+
+    <div class="p-5 bg-gray-1 flex flex-col sm:flex-col-reverse justify-between">
+      <div class="feature-showcase w-full h-60 overflow-hidden select-none sm:pt-10">
+        <Showcase section="cli" />
+      </div>
+
+      <div>
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-vercel-logo inline-block align-middle mr-1.5"></div>
+          <span>Manage Projects</span>
+        </h3>
+        <p class="text-xl tracking-tight">
+          Link new projects, pull environment variables, tailored to work even in monorepos.
+        </p>
+      </div>
+    </div>
+
+    <div class="p-5 bg-gray-1 flex flex-col justify-between">
+      <div class="feature-showcase w-full h-60 overflow-hidden select-none">
+        <Showcase section="files" />
+      </div>
+
+      <div>
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-image inline-block align-middle mr-1.5"></div>
+          <span>Inspect Artifacts</span>
+        </h3>
+        <p class="text-xl tracking-tight">Access deployment build logs and outputs just like regular files.</p>
+      </div>
+    </div>
+
+    <div class="p-5 bg-gray-1 flex flex-col justify-between">
+      <div class="feature-showcase w-full h-40 overflow-hidden select-none">
+        <Showcase section="checks" />
+      </div>
+
+      <div>
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-check-circled inline-block align-middle mr-1.5"></div>
+          <span>Deployment Checks</span>
+        </h3>
+        <p class="text-xl tracking-tight">Keep an eye on your integrated deployment checks.</p>
+      </div>
+    </div>
+
+    <div class="bg-gray-1 flex flex-col justify-between divide-y divide-gray-6">
+      <div class="p-5 basis-1/2 flex flex-col justify-end">
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-avatar inline-block align-middle mr-1.5"></div>
+          <span>Authenticate Easily</span>
+        </h3>
+        <p class="text-xl tracking-tight">
+          Multiple authentication options available. Works seamlessly with Vercel CLI.
+        </p>
+      </div>
+      <div class="p-5 basis-1/2 flex flex-col justify-end">
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-clock inline-block align-middle mr-1.5"></div>
+          <span>Realtime Updates</span>
+        </h3>
+        <p class="text-xl tracking-tight">Deployments, logs, and checks updated in real-time.</p>
+      </div>
+    </div>
+
+    <div class="bg-gray-1 flex flex-col justify-between divide-y divide-gray-6">
+      <div class="p-5 basis-1/2 flex flex-col justify-end">
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-button inline-block align-middle mr-1.5"></div>
+          <span>Status Bar Indicator</span>
+        </h3>
+        <p class="text-xl tracking-tight">Deployment status updated in real-time, only a glance away.</p>
+      </div>
+      <div class="p-5 basis-1/2 flex flex-col justify-end">
+        <h3 class="mb-2 text-gray-11">
+          <div class="i-radix-icons-mix inline-block align-middle mr-1.5"></div><span>More</span>
+        </h3>
+        <p class="text-xl tracking-tight">
+          Completions for Vercel configuration files, filters, document links, and more.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="mx-0 sm:mx-2.5 mt-5 text-gray-11">
+    <p>
+      <div class="inline-block align-middle i-radix-icons-info-circled mr-1.5"></div><span
+        >Certain features may not be available on some platforms.
+      </span>
+    </p>
+  </div>
+</div>
+
+<style scoped>
+  .feature-showcase {
+    mask-image: linear-gradient(to bottom, var(--gray1) 50%, transparent 100%);
+  }
+</style>

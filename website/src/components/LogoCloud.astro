@@ -1,0 +1,31 @@
+---
+import {Image} from 'astro:assets'
+import cursorLogo from '../assets/cursor.png'
+import githubCodespaces from '../assets/github-codespaces.png'
+import idxLogo from '../assets/idx.png'
+import vscodeLogo from '../assets/vscode.png'
+import vscodiumLogo from '../assets/vscodium.png'
+---
+
+<div class="flex flex-col gap-5 text-gray-11 grayscale">
+  <div class="text-sm font-bold uppercase tracking-wider hidden sm:block sm:text-center">Works on</div>
+  <div class="flex flex-row items-center justify-start gap-5">
+    <Image width="64" height="64" alt="Visual Studio Code" src={vscodeLogo} />
+    <Image
+      width="64"
+      height="64"
+      alt="GitHub Codespaces"
+      src={githubCodespaces}
+      class="brightness-75 invert dark:invert-0"
+    />
+    <Image width="64" height="64" alt="VSCodium" src={vscodiumLogo} />
+    <Image width="64" height="64" alt="CURSOR" src={cursorLogo} />
+    <Image width="64" height="64" alt="Project IDX" src={idxLogo} />
+  </div>
+</div>
+
+<style scoped>
+  img {
+    @apply h-8 w-auto;
+  }
+</style>

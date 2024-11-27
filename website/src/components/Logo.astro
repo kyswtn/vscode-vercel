@@ -1,0 +1,22 @@
+---
+type Props = {class?: string}
+const {class: className} = Astro.props
+---
+
+<!-- 
+  We'll do 1.1em for width and height cuz even in the official Vercel logo, the triangle seems
+  to be a tad larger than the wordmark.
+-->
+<div class:list={['relative w-[1.1em] h-[1.1em]', className]}>
+  <svg class="absolute z-1 inset-0 w-full h-full" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M24 22.525H0l12-21.05z"></path>
+  </svg>
+</div>
+
+<style scoped>
+  div::after {
+    content: '';
+    @apply absolute z-0 top-1/10 w-full h-full bg-[#0078d4] rounded-full 
+      blur-[.5rem] dark:blur-[.8rem] opacity-50 dark:opacity-100;
+  }
+</style>

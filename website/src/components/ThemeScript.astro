@@ -1,0 +1,95 @@
+<script is:inline>
+  ;(function () {
+    try {
+      // Using variables to reduce final script size when it's minified.
+      const d = document.documentElement
+      const ls = localStorage
+      const appendChild = 'appendChild'
+      const classList = 'classList'
+      const addEventListener = 'addEventListener'
+
+      // Run `fn` without css transitions.
+      // See https://paco.me/writing/disable-theme-transitions.
+      const withoutTransitions = (fn) => {
+        const styleTag = document.createElement('style')
+        styleTag[appendChild](
+          document.createTextNode(`*, *::before, *::after {
+-webkit-transition: none !important;
+-moz-transition: none !important;
+-o-transition: none !important;
+-ms-transition: none !important;
+transition: none !important;
+}`),
+        )
+        document.head[appendChild](styleTag)
+        fn()
+        const _ = window.getComputedStyle(styleTag).opacity
+        document.head.removeChild(styleTag)
+      }
+
+      // Appearance - Light, Dark, System.
+      const appearanceKey = 'data-appearance'
+      const appearanceOptions = ['light', 'dark', 'system']
+      const resolvedAppearanceOptions = appearanceOptions.slice(0, -1)
+      let appearanceValue = undefined
+
+      // Get system's appearance value.
+      const query = '(prefers-color-scheme: dark)'
+      const matchMedia = window.matchMedia(query)
+      const getSystemAppearance = () =>
+        matchMedia.media !== query || matchMedia.matches ? appearanceOptions[1] : appearanceOptions[0]
+
+      const applyAppearance = () => {
+        let resolvedValue = appearanceValue
+
+        // Resolve `system` to actual value.
+        if (!appearanceValue || appearanceValue === 'system') {
+          resolvedValue = getSystemAppearance()
+        }
+
+        // If the value is not valid, fallback to the first option.
+        if (!resolvedAppearanceOptions.includes(resolvedValue)) {
+          resolvedValue = appearanceOptions[0]
+        }
+
+        withoutTransitions(() => {
+          // Set colorscheme.
+          d.style.colorScheme = resolvedValue
+
+          // Support class based dark mode as well.
+          d[classList].add(resolvedValue)
+          d[classList].remove(resolvedAppearanceOptions.filter((value) => value !== resolvedValue))
+        })
+      }
+
+      // Read from localStorage on load.
+      appearanceValue = ls.getItem(appearanceKey)
+
+      // Apply the values on the first run.
+      applyAppearance()
+
+      // Handle storage/other events.
+      const handleUpdateEvents = ({key, newValue}, updateStorage = false) => {
+        if (key === appearanceKey) {
+          if (updateStorage) ls.setItem(appearanceKey, newValue)
+          appearanceValue = newValue
+          applyAppearance()
+        }
+      }
+
+      // Listen to localStorage changes (works only on different browser tabs).
+      window[addEventListener]('storage', (event) => handleUpdateEvents(event))
+
+      // Listen to updates from other scripts (works only on same browser tab).
+      window[addEventListener]('set-appearance', (event) =>
+        handleUpdateEvents({key: appearanceKey, newValue: event.detail}, true),
+      )
+
+      // Listen to system appearance changes.
+      matchMedia[addEventListener]('change', () => applyAppearance())
+
+      // Listen to astro view transition changes.
+      document.addEventListener('astro:after-swap', () => applyAppearance())
+    } catch (e) {}
+  })()
+</script>

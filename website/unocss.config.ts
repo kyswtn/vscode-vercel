@@ -1,4 +1,10 @@
-import {defineConfig, presetTypography, presetWind, transformerDirectives} from 'unocss'
+import {
+  defineConfig,
+  presetTypography,
+  presetWind,
+  transformerDirectives,
+  presetIcons,
+} from 'unocss'
 import {presetRadixColors} from 'unocss-preset-radix-colors'
 import {type Theme, theme} from 'unocss/preset-wind'
 
@@ -12,17 +18,15 @@ export default defineConfig<Theme>({
       fontFamily: {
         'system-sans': systemFonts.sans,
         'system-serif': systemFonts.serif,
-        // biome-ignore format: Single line reads better.
-        headings: ["'New Title'", "'New Title Fallback'", systemFonts.sans].join(', '),
-        // biome-ignore format: Single line reads better.
-        serif: ["'Source Serif 4'", "'Source Serif 4 Fallback'", systemFonts.serif].join(', '),
+        sans: ["'Bricolage Grotesque'", "'BG Fallback'", systemFonts.sans].join(', '),
         mono: systemFonts.mono,
       },
     }
   },
   transformers: [transformerDirectives()],
   presets: [
-    presetWind({dark: 'media'}),
+    presetIcons({}),
+    presetWind({dark: 'class'}),
     presetTypography({
       cssExtend: {
         'p,ul,ol,pre': {
@@ -47,9 +51,12 @@ export default defineConfig<Theme>({
       },
     }),
     presetRadixColors({
-      colors: ['gray'],
+      colors: ['gray', 'red', 'yellow', 'green', 'blue'],
       prefix: '',
-      typography: true,
+      typography: false,
+      dark: true,
+      darkSelector: '.dark',
+      prefersColorScheme: true,
     }),
   ],
 })

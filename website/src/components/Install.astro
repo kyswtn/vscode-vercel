@@ -1,0 +1,27 @@
+---
+export const vscodeLink = 'vscode:extension/frenco.vscode-vercel'
+const vsixLink =
+  'https://marketplace.visualstudio.com/_apis/public/gallery/publishers/frenco/vsextensions/vscode-vercel/2.1.4/vspackage'
+---
+
+<div class="w-full slide-up-fade-in-staggered" style="--stagger-continue: 14">
+  <h2 class="text-4xl sm:text-center mb-2.5">
+    <span>Install</span>
+    <div class="i-radix-icons-arrow-down text-3xl text-gray-11 inline-block align-middle ml-1.5"></div>
+  </h2>
+  <p class="text-gray-11 sm:text-center">Supports all operating systems and browsers supported by VS Code.</p>
+  <div class="w-full flex flex-col sm:flex-row gap-5 sm:gap-2.5 items-center justify-center mt-10">
+    <a
+      href={vscodeLink}
+      class="text-center w-full px-10 sm:w-auto sm:px-5 py-2 sm:py-1 bg-gray-12 text-gray-1 rounded-full transition-all duration-500 -hover:translate-y-px"
+    >
+      <span class="">Install on VS Code</span>
+    </a>
+    <a
+      href={vsixLink}
+      class="text-center w-full px-10 sm:w-auto sm:px-5 py-2 sm:py-1 bg-gray-12 text-gray-1 rounded-full transition-all duration-500 -hover:translate-y-px"
+    >
+      <span class="">Download VSIX File</span>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+@keyframes slide-up-fade-in {
+  0% {
+    transform: translateY(10px);
+    filter: blur(8px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-get-bigger {
+  0% {
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  100% {
+    opacity: 0.5;
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* based on https://github.com/antfu/antfu.me/blob/main/src/styles/main.css */
+  .slide-up-fade-in-staggered {
+    --stagger-initial: 200ms;
+    --stagger-continue: 0;
+    --stagger-multiplier: 60ms;
+  }
+
+  .slide-up-fade-in-staggered > * {
+    --stagger-index: 0;
+    animation: slide-up-fade-in 500ms both 1;
+    animation-delay: calc(
+      var(--stagger-initial) + (var(--stagger-continue) * var(--stagger-multiplier)) +
+        (var(--stagger-index) * var(--stagger-multiplier))
+    );
+  }
+
+  .slide-up-fade-in-staggered > *:nth-child(1) {
+    --stagger-index: 1 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(2) {
+    --stagger-index: 2 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(3) {
+    --stagger-index: 3 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(4) {
+    --stagger-index: 4 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(5) {
+    --stagger-index: 5 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(6) {
+    --stagger-index: 6 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(7) {
+    --stagger-index: 7 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(8) {
+    --stagger-index: 8 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(9) {
+    --stagger-index: 9 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(10) {
+    --stagger-index: 10 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(11) {
+    --stagger-index: 11 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(12) {
+    --stagger-index: 12 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(13) {
+    --stagger-index: 13 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(14) {
+    --stagger-index: 14 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(15) {
+    --stagger-index: 15 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(16) {
+    --stagger-index: 16 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(17) {
+    --stagger-index: 17 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(18) {
+    --stagger-index: 18 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(19) {
+    --stagger-index: 19 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(20) {
+    --stagger-index: 20 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(21) {
+    --stagger-index: 21 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(22) {
+    --stagger-index: 22 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(23) {
+    --stagger-index: 23 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(24) {
+    --stagger-index: 24 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(25) {
+    --stagger-index: 25 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(26) {
+    --stagger-index: 26 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(27) {
+    --stagger-index: 27 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(28) {
+    --stagger-index: 28 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(29) {
+    --stagger-index: 29 !important;
+  }
+  .slide-up-fade-in-staggered > *:nth-child(30) {
+    --stagger-index: 30 !important;
+  }
+}

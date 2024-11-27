@@ -1,0 +1,91 @@
+---
+import LogoCloud from '../components/LogoCloud.astro'
+import Showcase from '../components/Showcase.astro'
+
+import {vscodeLink} from './Install.astro'
+---
+
+<div class="w-full flex flex-col items-center gap-5 slide-up-fade-in-staggered">
+  <h2 class="leading-none text-[2.75rem] sm:text-5xl tracking-tighter text-center slide-up-fade-in-staggered">
+    <span class="inline-block">Keep</span>
+    <span class="inline-block">an eye</span>
+    <span class="inline-block">on</span>
+    <span class="inline-block">your</span>
+    <br class="hidden sm:inline" />
+    <span class="inline-block text-gray-11">deployments</span>
+    <span class="inline-block">while</span>
+    <span class="inline-block">you code</span>
+  </h2>
+
+  <p class="max-w-prose text-gray-11 text-center" style="--stagger-continue: 7">
+    <span class="hidden md:inline"
+      >Enhance your <a
+        href="https://vercel.com"
+        target="_blank"
+        class="underline decoration-dotted underline-offset-5 text-gray-11 hover:text-gray-12 hidden sm:inline transition-all duration-300"
+        >Vercel</a
+      > deployment experience.</span
+    >
+    <span>
+      Monitor deployments in real-time, <span class="hidden sm:inline">manage projects</span> and inspect deployment artifacts,
+      all within your code editor.
+    </span>
+  </p>
+
+  <div class="mt-5 order-last sm:order-none" style="--stagger-continue: 7">
+    <LogoCloud />
+  </div>
+
+  <div class="mt-5 w-full flex flex-col items-center sm:justify-center sm:flex-row gap-5" style="--stagger-continue: 7">
+    <a href={vscodeLink}>
+      <button
+        class="px-10 sm:w-auto sm:px-5 py-2 sm:py-1 bg-gray-12 text-gray-1 rounded-full transition-all duration-500 -hover:translate-y-px"
+        tabindex="-1"
+      >
+        <span class="">Install on VS Code</span>
+      </button>
+    </a>
+    <a
+      href="#install"
+      class="underline decoration-dotted underline-offset-5 text-gray-11 hover:text-gray-12 hidden sm:inline transition-all duration-300"
+    >
+      More Installation Options
+    </a>
+  </div>
+
+  <div class="w-full showcase-shadow" style="--stagger-continue: 7">
+    <div class="mt-5 sm:mt-10 flex flex-col items-center justify-center overflow-hidden showcase-wrapper">
+      <div class="showcase-container max-w-7xl w-full border-content border-gray-6 overflow-hidden select-none">
+        <div class="origin-top-left scale-300 sm:origin-center sm:scale-100">
+          <Showcase />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style scoped>
+  .showcase-shadow::after {
+    content: '';
+    @apply absolute w-[calc(100%+2.5rem)] h-[100%] top-5 -left-5 bg-blue-5 dark:bg-blue-3 blur-3xl opacity-50 -z-10 rounded-full
+      hidden sm:block;
+    animation: fade-in-get-bigger 3000ms both 1;
+    animation-delay: 750ms;
+  }
+
+  .showcase-wrapper {
+    /* Parent container will have px-5, this will cancel it out. */
+    @apply -ml-5 w-[calc(100%+2.5rem)] pl-5 sm:ml-0 sm:pl-0 sm:w-full;
+  }
+
+  .showcase-container {
+    mask-image: linear-gradient(to bottom, var(--gray1) 50%, transparent 100%);
+    @apply border-l-1 border-t-1 rounded-tl-lg sm:border-1 sm:rounded-lg;
+  }
+
+  @media (min-width: 640px) {
+    .showcase-container {
+      mask-image: none;
+    }
+  }
+</style>
