@@ -1,5 +1,6 @@
 import {defineConfig} from 'astro/config'
 
+import react from '@astrojs/react'
 import compress from '@playform/compress'
 import purgecss from 'astro-purgecss'
 import unocss from 'unocss/astro'
@@ -11,9 +12,10 @@ export default defineConfig({
     syntaxHighlight: false,
   },
   integrations: [
+    react(),
     unocss(),
     purgecss({
-      safelist: [/dark/, /prose/, /\[.*\]/],
+      safelist: [/dark/, /prose/, /\[.*\]/, /\d\.\d/],
       variables: true,
     }),
     compress(),

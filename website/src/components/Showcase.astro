@@ -1,0 +1,57 @@
+---
+import ShowcaseSymbols from './ShowcaseSymbols.astro'
+
+type Props = {
+  section?: string
+}
+
+const {section} = Astro.props
+---
+
+{
+  !section && (
+    <>
+      <ShowcaseSymbols />
+
+      <svg fill="none" viewBox="0 0 1352 843" class="w-full h-auto bg-gray-6">
+        <use href="#showcase-titlebar" x="0" y="0" />
+        <use href="#showcase-activitybar" x="0" y="28" />
+        <use href="#showcase-deployments" x="48" y="28" />
+        <use href="#showcase-projects" x="48" y="664" />
+        <use href="#showcase-editor" x="346" y="28" />
+        <use href="#showcase-files" x="1051" y="28" />
+        <use href="#showcase-checks" x="1051" y="664" />
+        <use href="#showcase-statusbar" x="0" y="822" />
+        <use href="#showcase-popup" x="293" y="511" />
+      </svg>
+    </>
+  )
+}
+{
+  section === 'deployments' && (
+    <svg fill="none" viewBox="0 0 297 635" class="w-full h-auto">
+      <use href="#showcase-deployments" x="0" y="-50" />
+    </svg>
+  )
+}
+{
+  section === 'cli' && (
+    <svg fill="none" viewBox="0 0 297 120" class="w-full h-auto">
+      <use href="#showcase-cli" x="0" y="10" />
+    </svg>
+  )
+}
+{
+  section === 'files' && (
+    <svg fill="none" viewBox="0 0 301 635" class="w-full h-auto">
+      <use href="#showcase-files" x="0" y="-50" />
+    </svg>
+  )
+}
+{
+  section === 'checks' && (
+    <svg fill="none" viewBox="0 0 301 157" class="w-full h-auto">
+      <use href="#showcase-checks" x="0" y="-13" />
+    </svg>
+  )
+}

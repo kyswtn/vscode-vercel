@@ -3,8 +3,8 @@
   "endOfLine": "lf",
   "useTabs": false,
   "tabWidth": 2,
-  "printWidth": 100,
-  "semi": true,
+  "printWidth": 120,
+  "semi": false,
   "bracketSpacing": false,
   "singleQuote": true,
   "trailingComma": "all"

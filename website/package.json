@@ -11,19 +11,31 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.3",
+    "@astrojs/react": "^3.6.2",
+    "@iconify-json/radix-icons": "^1.2.1",
     "@playform/compress": "^0.1.1",
+    "@react-spring/three": "^9.7.5",
+    "@react-three/drei": "^9.117.3",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/rapier": "^1.5.0",
     "@types/bun": "latest",
     "@types/node": "^22.5.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.170.0",
     "@unocss/reset": "^0.62.3",
     "astro": "^4.15.4",
     "astro-purgecss": "^4.6.0",
     "browserslist": "^4.23.3",
+    "clsx": "^2.1.1",
     "lightningcss": "^1.27.0",
     "prettier-plugin-astro": "^0.14.1",
     "purgecss": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0",
     "typescript": "^5.0.0",
     "unocss": "^0.62.3",
-    "unocss-preset-radix-colors": "^0.2.0",
-    "unplugin-icons": "^0.19.3"
+    "unocss-preset-radix-colors": "^0.2.0"
   }
 }

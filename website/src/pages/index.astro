@@ -1,25 +1,22 @@
 ---
-import AnalyticsScript from '../components/AnalyticsScript.astro';
-import InlineStyles from '../components/InlineStyles.astro';
-import MetaTags from '../components/MetaTags.astro';
-import ShowcaseGrid from '../components/ShowcaseGrid.astro';
-
-import {Content as ClosingStatements} from '../components/ClosingStatements.md';
-import {Content as Description} from '../components/Description.md';
-import {Content as Features} from '../components/Features.md';
-import {Content as GetStarted} from '../components/GetStarted.md';
-import {Content as Installation} from '../components/Installation.md';
-import {Content as TLDR} from '../components/TLDR.md';
+import AnalyticsScript from '../components/AnalyticsScript.astro'
+import Features from '../components/Features.astro'
+import Footer from '../components/Footer.astro'
+import Hero from '../components/Hero.astro'
+import InlineStyles from '../components/InlineStyles.astro'
+import Install from '../components/Install.astro'
+import MetaTags from '../components/MetaTags.astro'
+import NavBar from '../components/NavBar.astro'
+import ThemeScript from '../components/ThemeScript.astro'
 
 const preloadFonts: AbsoluteFontFilePath[] = [
-  '/fonts/newtitle-bold.woff2',
-  '/fonts/source-serif-4-latin-400-normal.woff2',
-  '/fonts/source-serif-4-latin-700-normal.woff2',
-];
+  '/fonts/bricolage-grotesque-latin-400-normal.woff2',
+  '/fonts/bricolage-grotesque-latin-600-normal.woff2',
+]
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,55 +28,26 @@ const preloadFonts: AbsoluteFontFilePath[] = [
       description="Keep an eye on your Vercel deployments while you code"
       ogImage="/og.png"
     />
-    {
-      preloadFonts.map((path) => (
-        <link rel="preload" href={path} as="font" type="font/woff2" crossorigin />
-      ))
-    }
+    {preloadFonts.map((path) => <link rel="preload" href={path} as="font" type="font/woff2" crossorigin />)}
     <InlineStyles />
     <AnalyticsScript />
+    <ThemeScript />
   </head>
-  <body class="w-full bg-gray-1 text-gray-12 subpixel-antialiased text-xl">
-    <main class="relative max-w-7xl w-full mx-auto p-5 md:p-10 lg:p-20">
-      <div
-        class="absolute inset-0 mx-5 md:m-5 lg:m-10 -z-1 border-none md:border-solid border border-gray-5a"
-      >
-        <div class="w-full h-full grid grid-cols-2 md:grid-cols-3">
-          <div class="border-r border-gray-5a hidden md:block"></div>
-          <div class="border-r border-gray-5a border-dashed"></div>
-          <div></div>
-        </div>
-      </div>
-
-      <div class="max-w-prose prose prose-radix-gray font-serif text-xl tracking-tight lg:-mt-1em">
-        <TLDR />
-      </div>
-      <h1
-        class="font-headings uppercase font-bold text-[6rem] md:text-[8rem] lg:text-[10rem] leading-none my-5 lg:my-10"
-      >
-        Keep an eye on your Vercel deployments while you code
-      </h1>
-      <div class="max-w-[70ch] prose prose-radix-gray font-serif text-xl tracking-tight">
-        <Description />
-        <br />
-      </div>
-      <div class="max-w-full prose prose-radix-gray font-serif text-xl tracking-tight">
-        <ShowcaseGrid />
-      </div>
-      <div class="max-w-[70ch] prose prose-radix-gray font-serif text-xl tracking-tight">
-        <br />
+  <body class="w-full bg-gray-1 text-gray-12 text-xl sm:text-lg font-sans">
+    <NavBar />
+    <main class="pt-28 px-5 max-w-7xl mx-auto flex flex-col">
+      <section class="w-full">
+        <Hero />
+      </section>
+      <section id="features" class="mt-30 pt-10 w-full">
         <Features />
-        <br />
-        <div class="bg-gray-1">
-          <Installation />
-        </div>
-        <br />
-        <GetStarted />
-        <div class="bg-gray-1 py-4">
-          <div class="border-b border-gray-5a border-dashed"></div>
-        </div>
-        <ClosingStatements />
-      </div>
+      </section>
+      <section id="install" class="mt-20 pt-10 mb-40 w-full">
+        <Install />
+      </section>
+      <!-- Invisible element with classNames just to prevent prunes. -->
+      <div class="hidden bg-gray-3"></div>
     </main>
+    <Footer />
   </body>
 </html>

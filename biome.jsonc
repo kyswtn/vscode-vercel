@@ -53,6 +53,9 @@
       "correctness": {
         "noUnusedImports": "error"
       },
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
       "style": {
         // Non-null assertions are allowed, but they should come with SAFETY explanations on why
         // these assertions won't cause an exception.
