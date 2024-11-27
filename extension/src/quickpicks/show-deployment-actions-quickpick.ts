@@ -1,5 +1,4 @@
 import ms from 'ms'
-import path from 'pathe'
 import * as vscode from 'vscode'
 import {CommandId, FileSystemProviderScheme, sourceProviderNames} from '../constants'
 import {VercelDeployment} from '../models/vercel-deployment'
@@ -141,7 +140,7 @@ export async function showDeploymentActionsQuickPick(deployment: VercelDeploymen
       break
     }
     case DeploymentQuickPickAction.OpenInVercelDashboard: {
-      await vscode.env.openExternal(vscode.Uri.parse(path.join(deployment.project.url, deployment.id)))
+      await vscode.env.openExternal(vscode.Uri.parse(`${deployment.project.url}/${deployment.id}`))
       break
     }
     case DeploymentQuickPickAction.ViewBuildLogs: {
