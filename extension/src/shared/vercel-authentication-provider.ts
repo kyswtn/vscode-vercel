@@ -229,7 +229,7 @@ export class VercelAuthenticationProvider implements vscode.AuthenticationProvid
 
   private async authenticateViaSavedToken() {
     const dataDir = getDataDir('com.vercel.cli')
-    const authJsonFileUri = vscode.Uri.parse(path.join(dataDir, 'auth.json'))
+    const authJsonFileUri = vscode.Uri.file(path.join(dataDir, 'auth.json'))
 
     const authJsonFileExists = await fileExists(authJsonFileUri)
     if (!authJsonFileExists) {
