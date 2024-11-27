@@ -1,5 +1,23 @@
 # vscode-vercel
 
+## 2.2.0
+
+### Minor Changes
+
+- 3e4c787: Fix bugs, refactor, and add a ton of features.
+
+  - Fix CLI authentication on Windows
+  - Fix user being logged out when there's no internet
+  - Fix teamId being selected from user instead of project
+  - Fix state related bugs and improve linking error messages
+  - Tidy up hover views
+  - Add deployment checks
+  - Add auto-refresh for build logs
+  - Add auto-refresh for deployments and deployment checks
+  - Add workspace independent file views for deployment logs and outputs (e.g. open from recents, drag-and-drop files)
+  - Add cmd+click links (both absolute and relative) in deployment logs and outputs
+  - Add more deployment actions (promote, redeploy, rollback and view details)
+
 ## 2.1.4
 
 ### Patch Changes
