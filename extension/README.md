@@ -53,8 +53,6 @@ If you're a VSCode extension developer, you can also use the extension as a depe
 
 We have many more features _potentially_ including
 
-- **Real-time Updates** &mdash; Deployments sidebar, status bar item, logs, and file trees get updated in real-time with detailed progress as new deployments queue in.
-- **More Deployment Actions** &mdash; Make it easier to perform actionable tasks such as re-deploying the latest deployment, promoting a deployment to production, rolling back to a previous deployment etc.
 - **Vercel CLI Command Palette** &mdash; A command palette to run Vercel CLI commands directly from within VSCode, without needing to switch to a shell.
 
 ## Demo
