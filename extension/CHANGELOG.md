@@ -1,5 +1,11 @@
 # vscode-vercel
 
+## 2.2.1
+
+### Patch Changes
+
+- c1ae35c: Update documentation because planned features are already shipped.
+
 ## 2.2.0
 
 ### Minor Changes
